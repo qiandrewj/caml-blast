@@ -1,0 +1,4 @@
+(executable
+ (public_name blockblast)
+ (name main)
+ (libraries blockblast))
