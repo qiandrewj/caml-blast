@@ -1,1 +1,3 @@
-let () = print_endline "Hello, World!"
+open States
+
+let () = States.TitleState.(setup () |> loop)

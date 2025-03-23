@@ -1,0 +1,3 @@
+(library
+ (name states)
+ (libraries raylib raygui))
