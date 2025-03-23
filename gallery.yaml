@@ -1,0 +1,24 @@
+---
+# Members of your group.
+group:  
+  - name: Annie Chen
+    netid: anc76
+  - name: Andrew Qian
+    netid: ajq22
+  - name: Paige Yun
+    netid: phy6
+
+# Your PM.
+pm:
+  name: Bobby Zhang
+  netid: bz292
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "CamlBlast"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.com/qiandrewj/block-blast"
+# Replace the URL with your own demo video.
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >

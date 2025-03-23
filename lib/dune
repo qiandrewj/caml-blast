@@ -1,2 +1,5 @@
 (library
- (name blockblast))
+ (name blockblast)
+ (instrumentation
+  (backend bisect_ppx))
+ (libraries raylib batteries csv))
