@@ -31,3 +31,4 @@ let is_empty_cell board (r, c) =
     | Empty -> true
     | _ -> false
   else raise (Invalid_argument "Out of bounds")
+
