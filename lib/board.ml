@@ -32,3 +32,19 @@ let is_empty_cell board (r, c) =
     | _ -> false
   else raise (Invalid_argument "Out of bounds")
 
+let place_block board block (r, c) =
+  let shape = Block.get_shape block in
+  let color = Block.get_color block in
+  if
+    List.for_all
+      (fun (dr, dc) ->
+        let pos = (r + dr, c + dc) in
+        is_valid_pos board pos && is_empty_cell board pos)
+      shape
+  then
+    List.iter
+      (fun (dr, dc) ->
+        let pos = (r + dr, c + dc) in
+        set_cell board pos (Block color))
+      shape
+  else failwith "Block cannot be placed there"

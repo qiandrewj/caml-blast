@@ -5,7 +5,7 @@ type color = R | G | B | Y | P
 (**The type representing a block's color. *)
 
 type shape = (int * int) list
-(**The type representing a block's shape as relative coordinates from the top right.*)
+(**The type representing a block's shape as relative coordinates from the top left.*)
 
 val create_block : color -> shape -> t
 (**[create_block color shape] is a new block of [color] and [shape].*)

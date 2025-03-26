@@ -13,9 +13,6 @@ type t = {
 }
 
 let create_block c s = { color = c; shape = s }
-
-(*TODO: make this actually random*)
-let create_random_block () = create_block R []
 let get_color block = block.color
 let get_shape block = block.shape
 
@@ -41,3 +38,33 @@ let l_up = [ (0, 0); (1, 0); (2, 0); (2, 1) ]
 let l_down = [ (0, 0); (1, 0); (2, 0); (0, 1) ]
 let l_left = [ (0, 0); (0, 1); (0, 2); (1, 2) ]
 let l_right = [ (0, 0); (1, 0); (0, 1); (0, 2) ]
+
+(*END SHAPE DEFS*)
+
+let create_random_block () =
+  let colors = [ R; G; B; Y; P ] in
+  let shapes =
+    [
+      one;
+      sqr;
+      big_sqr;
+      hor_line;
+      vert_line;
+      big_l;
+      inv_big_l;
+      t_up;
+      t_down;
+      t_left;
+      t_right;
+      s_right;
+      s_left;
+      s_down;
+      l_up;
+      l_down;
+      l_left;
+      l_right;
+    ]
+  in
+  let random_color = List.nth colors (Random.int (List.length colors)) in
+  let random_shape = List.nth shapes (Random.int (List.length shapes)) in
+  create_block random_color random_shape
