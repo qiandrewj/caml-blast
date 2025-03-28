@@ -11,6 +11,10 @@ type t = {
   board : Board.t;
 }
 
+let settings_button = 
+  ref 
+  (Button.make_circle_button)
+
 let setup () =
   init_window width height "raygui - controls test suite";
   set_target_fps 60;
