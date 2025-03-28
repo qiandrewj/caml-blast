@@ -1,3 +1,2 @@
 open States
-
-let () = States.TitleState.(setup () |> loop)
+open Blockblast
