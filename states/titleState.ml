@@ -5,9 +5,10 @@ open Blockblast
 let width = 800
 let height = 600
 
-type state = {
-  show_text_input_box : bool;
-  screen_changed : bool;
+type t = {
+  active_blocks : (int * int, Block.t) Hashtbl.t;
+  queued_blocks : Block.t list;
+  board : Board.t;
 }
 
 let setup () =
