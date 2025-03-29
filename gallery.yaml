@@ -1,6 +1,6 @@
 ---
 # Members of your group.
-group:  
+group:
   - name: Annie Chen
     netid: anc76
   - name: Andrew Qian
@@ -19,7 +19,7 @@ title: "CamlBlast"
 # OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
 git-repo: "https://github.com/qiandrewj/block-blast"
 # Replace the URL with your own demo video.
-demo-video-url: ""
+demo-video-url: "https://drive.google.com/file/d/14dV5wUsxzas9DvRxuEjXAmo7chZR5aUu/view"
 # Write a short, attention-grabbing description of your project.
 desc: >
   Our project is a puzzle game where you place differently-shaped
