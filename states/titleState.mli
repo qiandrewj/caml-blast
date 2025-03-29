@@ -1,7 +1,4 @@
-val width : int
-val height : int
-
-type t = int
+type t
 (** [t] is the type of data another state can send to the title state. *)
 
 val name : string
@@ -16,15 +13,13 @@ val set_buffer : t -> unit
 val init : unit -> unit
 (** [init ()] initializes the title state. *)
 
-val update : unit -> string option
+val update : unit -> unit
 (** [update ()] checks for keyboard input. This state may transition into the
     [initGame] state. *)
 
-val show : unit -> unit
-(** [show ()] draws the title screen. *)
+(* val show : unit -> unit * [show ()] draws the title screen. *)
+
+val run : unit -> unit
 
 val reset : unit -> unit
 (** [show ()] resets the state to its inital state. *)
-
-val load : unit -> unit
-(** [load ()] loads sprites for the title state. *)

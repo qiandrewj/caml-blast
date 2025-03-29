@@ -3,13 +3,13 @@ open Blockblast
 
 type t = {
   board : Board.t;
-  available_blocks : (int * int, Block.t) Hashtbl.t;
+  active_blocks : (int * int, Block.t) Hashtbl.t;
   queued_blocks : Block.t list;
 }
 
 let init () =
   let board = Board.create_board () in
-  let available_blocks = Hashtbl.create 16 in
+  let active_blocks = Hashtbl.create 16 in
   let queued_blocks =
     [
       Block.create_random_block ();
@@ -17,7 +17,7 @@ let init () =
       Block.create_random_block ();
     ]
   in
-  { board; available_blocks; queued_blocks }
+  { board; active_blocks; queued_blocks }
 
 let color_to_raylib = function
   | Block.R -> Color.red
@@ -79,3 +79,15 @@ let draw_block_queue blocks =
     blocks
 
 let draw_ui () = draw_text "SCORE: 0" 350 40 25 Color.white
+
+let rec loop state =
+  if window_should_close () then ()
+  else begin
+    begin_drawing ();
+    clear_background (Color.create 70 130 180 255);
+    draw_ui ();
+    draw_board state.board;
+    draw_block_queue state.queued_blocks;
+    end_drawing ();
+    loop state
+  end
