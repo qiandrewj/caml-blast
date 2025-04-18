@@ -28,3 +28,11 @@ val place_block : t -> Block.t -> int * int -> unit
 (**[place_block board block (r, c)] places [block] in [board] at position
    [(r, c)], aligning with the top left of [block], if [block] fits in that
    spot. *)
+
+val clear_full_lines : t -> int
+(**[clear_full_lines board] sets all cells in full rows and columns to [Empty]
+   and returns the number of cleared rows plus columns.*)
+
+val no_moves : t -> Block.t list -> bool
+(**[no_moves board blocks] is true if and only if no blocks in [blocks] can fit
+   in [board]. *)

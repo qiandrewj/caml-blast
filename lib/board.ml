@@ -84,3 +84,20 @@ let clear_full_lines board =
       done)
     full_cols;
   List.length full_rows + List.length full_cols
+
+let no_moves board blocks =
+  let can_place block =
+    let shape = Block.get_shape block in
+    List.exists
+      (fun r ->
+        List.exists
+          (fun c ->
+            List.for_all
+              (fun (dr, dc) ->
+                let pos = (r + dr, c + dc) in
+                is_valid_pos board pos && is_empty_cell board pos)
+              shape)
+          (List.init board.size (fun x -> x)))
+      (List.init board.size (fun x -> x))
+  in
+  not (List.exists can_place blocks)
