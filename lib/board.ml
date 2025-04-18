@@ -46,3 +46,41 @@ let place_block board block (r, c) =
         set_cell board pos (Block color))
       shape
   else failwith "Block cannot be placed there"
+
+let clear_full_lines board =
+  let size = board.size in
+  let grid = board.grid in
+  let is_row_full r =
+    Array.for_all
+      (function
+        | Block _ -> true
+        | Empty -> false)
+      grid.(r)
+  in
+  let is_col_full c =
+    Array.for_all
+      (fun row ->
+        match row.(c) with
+        | Block _ -> true
+        | Empty -> false)
+      grid
+  in
+  let full_rows =
+    List.filter (fun r -> is_row_full r) (List.init size (fun x -> x))
+  in
+  let full_cols =
+    List.filter (fun c -> is_col_full c) (List.init size (fun x -> x))
+  in
+  List.iter
+    (fun r ->
+      for c = 0 to size - 1 do
+        grid.(r).(c) <- Empty
+      done)
+    full_rows;
+  List.iter
+    (fun c ->
+      for r = 0 to size - 1 do
+        grid.(r).(c) <- Empty
+      done)
+    full_cols;
+  List.length full_rows + List.length full_cols
