@@ -7,9 +7,7 @@ type t = {
   size : int;
 }
 
-let board_size = 8
-
-let create_board () =
+let create_board board_size =
   let b = Array.make_matrix board_size board_size Empty in
   { grid = b; size = board_size }
 
