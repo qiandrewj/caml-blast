@@ -41,6 +41,8 @@ let l_right = [ (0, 0); (1, 0); (0, 1); (0, 2) ]
 
 (*END SHAPE DEFS*)
 
+let () = Random.self_init ()
+
 let create_random_block () =
   let colors = [ R; G; B; Y; P ] in
   let shapes =
