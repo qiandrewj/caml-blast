@@ -22,6 +22,7 @@ let get_cell board (r, c) =
 
 let set_cell board (r, c) cell =
   if is_valid_pos board (r, c) then board.grid.(r).(c) <- cell
+  else raise (Invalid_argument "Out of bounds")
 
 let is_empty_cell board (r, c) =
   if is_valid_pos board (r, c) then

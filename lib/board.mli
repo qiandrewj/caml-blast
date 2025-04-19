@@ -7,8 +7,11 @@ type cell =
   | Empty
   | Block of Block.color  (**The type representing a board cell.*)
 
-val create_board : unit -> t
+val create_board : int -> t
 (**[create_board ()] creates an empty 8x8 board.*)
+
+val size : t -> int
+(**[size board]*)
 
 val get_cell : t -> int * int -> cell
 (**[get_cell board (r, c)] is the cell at [(r, c)].*)
