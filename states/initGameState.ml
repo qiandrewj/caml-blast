@@ -5,6 +5,8 @@ type t = {
   board : Board.t;
   active_blocks : (int * int, Block.t) Hashtbl.t;
   queued_blocks : Block.t list;
+  dragged_block : (Block.t * (int * int)) option;
+  mouse_pos : int * int;
 }
 
 let init () =
@@ -17,7 +19,13 @@ let init () =
       Block.create_random_block ();
     ]
   in
-  { board; active_blocks; queued_blocks }
+  {
+    board;
+    active_blocks;
+    queued_blocks;
+    dragged_block = None;
+    mouse_pos = (0, 0);
+  }
 
 let color_to_raylib = function
   | Block.R -> Color.red
@@ -33,7 +41,7 @@ let draw_cell x y = function
       draw_rectangle_lines x y 50 50 (Color.create 50 50 50 255)
 
 let draw_board board =
-  draw_rectangle 200 80 (8 * 50) (8 * 50) (Color.create 230 230 230 255);
+  draw_rectangle 200 80 (8 * 50) (8 * 50) (Color.create 245 245 245 255);
 
   for c = 0 to 8 do
     draw_line
@@ -41,7 +49,7 @@ let draw_board board =
       80
       (200 + (c * 50))
       (80 + (8 * 50))
-      (Color.create 200 200 200 255)
+      (Color.create 100 100 100 255)
   done;
 
   for r = 0 to 8 do
@@ -49,7 +57,7 @@ let draw_board board =
       (80 + (r * 50))
       (200 + (8 * 50))
       (80 + (r * 50))
-      (Color.create 200 200 200 255)
+      (Color.create 100 100 100 255)
   done;
 
   for r = 0 to 7 do
@@ -78,6 +86,60 @@ let draw_block_queue blocks =
       draw_block_with_shape x 550 block)
     blocks
 
+let draw_dragged_block state =
+  match state.dragged_block with
+  | Some (block, (offset_x, offset_y)) ->
+      let x = fst state.mouse_pos - offset_x in
+      let y = snd state.mouse_pos - offset_y in
+      draw_block_with_shape x y block
+  | None -> ()
+
+let get_block_at_pos state (x, y) =
+  if y >= 530 && y < 550 + 100 then
+    let index = (x - 200) / 150 in
+    if index >= 0 && index < List.length state.queued_blocks then
+      Some
+        ( List.nth state.queued_blocks index,
+          (x - (200 + (index * 150)), y - 550) )
+    else None
+  else None
+
+(* let board_pos_to_cell (x, y) = let col = (x - 200) / 50 in let row = (y - 80)
+   / 50 in (row, col) *)
+
+let handle_input state =
+  let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
+  let state = { state with mouse_pos } in
+
+  if is_mouse_button_pressed MouseButton.Left then
+    match get_block_at_pos state mouse_pos with
+    | Some (block, offset) ->
+        (* let offset = (fst mouse_pos - 200, snd mouse_pos - 550) in *)
+        { state with dragged_block = Some (block, offset) }
+    | None -> state
+  else if is_mouse_button_released MouseButton.Left then
+    match state.dragged_block with
+    | Some (block, _) ->
+        let board_x = fst mouse_pos - 200 in
+        let board_y = snd mouse_pos - 80 in
+        if board_x >= 0 && board_y >= 0 then
+          let col = board_x / 50 in
+          let row = board_y / 50 in
+          try
+            Board.place_block state.board block (row, col);
+            {
+              state with
+              dragged_block = None;
+              queued_blocks =
+                List.filter (fun b -> b != block) state.queued_blocks
+                @ [ Block.create_random_block () ];
+              mouse_pos;
+            }
+          with _ -> { state with dragged_block = None; mouse_pos }
+        else { state with dragged_block = None; mouse_pos }
+    | None -> { state with mouse_pos }
+  else { state with mouse_pos }
+
 let draw_ui () = draw_text "SCORE: 0" 350 40 25 Color.white
 
 let rec loop state =
@@ -88,6 +150,7 @@ let rec loop state =
     draw_ui ();
     draw_board state.board;
     draw_block_queue state.queued_blocks;
+    draw_dragged_block state;
     end_drawing ();
     loop state
   end
