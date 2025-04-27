@@ -6,6 +6,17 @@ let test_block _ =
   assert_equal Block.R (Block.get_color b);
   assert_equal Block.sqr (Block.get_shape b)
 
+let test_random_blocks _ =
+  let blocks = List.init 20 (fun _ -> Block.create_random_block ()) in
+  List.iter
+    (fun block ->
+      let color = Block.get_color block in
+      assert_bool "Valid color"
+        (List.mem color [ Block.R; Block.G; Block.B; Block.Y; Block.P ]);
+      let shape = Block.get_shape block in
+      assert_bool "Non-empty shape" (shape <> []))
+    blocks
+
 let test_create_board _ =
   let board = Board.create_board 8 in
   assert_equal 8 (Board.size board);
@@ -78,7 +89,8 @@ let test_no_moves _ =
 let tests =
   "test suite"
   >::: [
-         "block tests" >:: test_block;
+         "test_block" >:: test_block;
+         "test_random_block" >:: test_random_blocks;
          "test_create_board" >:: test_create_board;
          "test_size" >:: test_size;
          "test_is_valid_pos" >:: test_is_valid_pos;
