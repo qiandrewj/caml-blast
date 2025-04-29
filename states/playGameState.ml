@@ -4,7 +4,7 @@ open Blockblast
 type t = {
   board : Board.t;
   active_blocks : (int * int, Block.t) Hashtbl.t;
-  queued_blocks : Block.t list;
+  mutable queued_blocks : Block.t option array;
   dragged_block : (Block.t * (int * int)) option;
   mouse_pos : int * int;
   score : int;
@@ -15,11 +15,12 @@ let init () =
   let board = Board.create_board 8 in
   let active_blocks = Hashtbl.create 16 in
   let queued_blocks =
-    [
-      Block.create_random_block ();
-      Block.create_random_block ();
-      Block.create_random_block ();
-    ]
+    Array.of_list
+      [
+        Some (Block.create_random_block ());
+        Some (Block.create_random_block ());
+        Some (Block.create_random_block ());
+      ]
   in
   {
     board;
@@ -85,10 +86,13 @@ let draw_block_with_shape x y block =
     shape
 
 let draw_block_queue blocks =
-  List.iteri
-    (fun i block ->
-      let x = 200 + (i * 150) in
-      draw_block_with_shape x 550 block)
+  Array.iteri
+    (fun i block_opt ->
+      match block_opt with
+      | Some block ->
+          let x = 200 + (i * 150) in
+          draw_block_with_shape x 550 block
+      | None -> ())
     blocks
 
 let draw_dragged_block state =
@@ -102,22 +106,24 @@ let draw_dragged_block state =
 let get_block_at_pos state (x, y) =
   if y >= 520 && y < 520 + 120 then
     let index = (x - 200) / 150 in
-    if index >= 0 && index < List.length state.queued_blocks then
-      let block = List.nth state.queued_blocks index in
-      let base_x = 200 + (index * 150) in
-      let base_y = 550 in
-      let shape = Block.get_shape block in
-      let cell_opt =
-        List.find_opt
-          (fun (dr, dc) ->
-            let cell_x = base_x + (dc * 30) in
-            let cell_y = base_y + (dr * 30) in
-            x >= cell_x && x < cell_x + 28 && y >= cell_y && y < cell_y + 28)
-          shape
-      in
-      match cell_opt with
-      | Some (dr, dc) ->
-          Some (block, (x - (base_x + (dc * 30)), y - (base_y + (dr * 30))))
+    if index >= 0 && index < Array.length state.queued_blocks then
+      match state.queued_blocks.(index) with
+      | Some block -> (
+          let base_x = 200 + (index * 150) in
+          let base_y = 550 in
+          let shape = Block.get_shape block in
+          let cell_opt =
+            List.find_opt
+              (fun (dr, dc) ->
+                let cell_x = base_x + (dc * 30) in
+                let cell_y = base_y + (dr * 30) in
+                x >= cell_x && x < cell_x + 28 && y >= cell_y && y < cell_y + 28)
+              shape
+          in
+          match cell_opt with
+          | Some (dr, dc) ->
+              Some (block, (x - (base_x + (dc * 30)), y - (base_y + (dr * 30))))
+          | None -> None)
       | None -> None
     else None
   else None
@@ -135,19 +141,12 @@ let handle_input state =
   else
     let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
     let state = { state with mouse_pos } in
-
-    Printf.printf "Mouse position: (%d, %d)\n" (fst mouse_pos) (snd mouse_pos);
-    flush stdout;
-
     if is_mouse_button_pressed MouseButton.Left then
       match get_block_at_pos state mouse_pos with
       | Some (block, offset) ->
-          {
-            state with
-            dragged_block = Some (block, offset);
-            queued_blocks =
-              List.filter (fun b -> b <> block) state.queued_blocks;
-          }
+          let index = (fst mouse_pos - 200) / 150 in
+          state.queued_blocks.(index) <- None;
+          { state with dragged_block = Some (block, offset) }
       | None -> state
     else if is_mouse_button_released MouseButton.Left then
       match state.dragged_block with
@@ -155,7 +154,7 @@ let handle_input state =
           let board_x = fst mouse_pos - 200 in
           let board_y = snd mouse_pos - 80 in
 
-          if board_x >= 0 && board_y >= 0 then
+          if board_x >= 0 && board_y >= 0 then (
             let col = board_x / 50 in
             let row = board_y / 50 in
 
@@ -164,36 +163,33 @@ let handle_input state =
               let cleared = Board.clear_full_lines state.board in
               let new_score = state.score + (cleared * 100) in
 
-              let final_queued_blocks =
-                if List.length state.queued_blocks = 0 then
-                  [
-                    Block.create_random_block ();
-                    Block.create_random_block ();
-                    Block.create_random_block ();
-                  ]
-                else state.queued_blocks
-              in
+              let all_empty = Array.for_all (( = ) None) state.queued_blocks in
+              if all_empty then
+                state.queued_blocks <-
+                  Array.of_list
+                    [
+                      Some (Block.create_random_block ());
+                      Some (Block.create_random_block ());
+                      Some (Block.create_random_block ());
+                    ];
 
-              let game_over = Board.no_moves state.board final_queued_blocks in
-              {
-                state with
-                dragged_block = None;
-                queued_blocks = final_queued_blocks;
-                score = new_score;
-                game_over;
-              })
+              let game_over =
+                Board.no_moves state.board
+                  (Array.to_list state.queued_blocks
+                  |> List.filter_map (fun x -> x))
+              in
+              { state with dragged_block = None; score = new_score; game_over })
             else
-              {
-                state with
-                dragged_block = None;
-                queued_blocks = block :: state.queued_blocks;
-              }
+              let orig_index = (fst mouse_pos - 200) / 150 in
+              if
+                orig_index >= 0 && orig_index < Array.length state.queued_blocks
+              then state.queued_blocks.(orig_index) <- Some block;
+              { state with dragged_block = None })
           else
-            {
-              state with
-              dragged_block = None;
-              queued_blocks = block :: state.queued_blocks;
-            }
+            let orig_index = (fst mouse_pos - 200) / 150 in
+            if orig_index >= 0 && orig_index < Array.length state.queued_blocks
+            then state.queued_blocks.(orig_index) <- Some block;
+            { state with dragged_block = None }
       | None -> state
     else state
 
