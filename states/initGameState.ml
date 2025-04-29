@@ -43,13 +43,25 @@ let draw_cell x y = function
 let draw_board board =
   draw_rectangle 200 80 (8 * 50) (8 * 50) (Color.create 245 245 245 255);
 
+  for r = 0 to 7 do
+    for c = 0 to 7 do
+      let x = 200 + (c * 50) in
+      let y = 80 + (r * 50) in
+      let cell = Board.get_cell board (r, c) in
+      (match cell with
+      | Board.Empty -> Printf.printf "Cell (%d, %d): Empty\n" r c
+      | Board.Block color -> Printf.printf "Cell (%d, %d): Block\n" r c);
+      flush stdout;
+      draw_cell x y cell
+    done
+  done;
   for c = 0 to 8 do
     draw_line
       (200 + (c * 50))
       80
       (200 + (c * 50))
       (80 + (8 * 50))
-      (Color.create 100 100 100 255)
+      (Color.create 0 0 0 255)
   done;
 
   for r = 0 to 8 do
@@ -57,16 +69,7 @@ let draw_board board =
       (80 + (r * 50))
       (200 + (8 * 50))
       (80 + (r * 50))
-      (Color.create 100 100 100 255)
-  done;
-
-  for r = 0 to 7 do
-    for c = 0 to 7 do
-      let x = 200 + (c * 50) in
-      let y = 80 + (r * 50) in
-      let cell = Board.get_cell board (r, c) in
-      draw_cell x y cell
-    done
+      (Color.create 0 0 0 255)
   done
 
 let draw_block_with_shape x y block =
@@ -95,7 +98,7 @@ let draw_dragged_block state =
   | None -> ()
 
 let get_block_at_pos state (x, y) =
-  if y >= 530 && y < 550 + 100 then
+  if y >= 550 && y < 550 + 30 then
     let index = (x - 200) / 150 in
     if index >= 0 && index < List.length state.queued_blocks then
       Some
@@ -111,21 +114,37 @@ let handle_input state =
   let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
   let state = { state with mouse_pos } in
 
-  if is_mouse_button_pressed MouseButton.Left then
+  Printf.printf "Mouse position: (%d, %d)\n" (fst mouse_pos) (snd mouse_pos);
+  flush stdout;
+
+  if is_mouse_button_pressed MouseButton.Left then (
     match get_block_at_pos state mouse_pos with
     | Some (block, offset) ->
-        (* let offset = (fst mouse_pos - 200, snd mouse_pos - 550) in *)
+        Printf.printf "Block selected for dragging.\n";
+        flush stdout;
         { state with dragged_block = Some (block, offset) }
-    | None -> state
-  else if is_mouse_button_released MouseButton.Left then
+    | None ->
+        Printf.printf "No block selected.\n";
+        flush stdout;
+        state)
+  else if is_mouse_button_released MouseButton.Left then (
     match state.dragged_block with
     | Some (block, _) ->
         let board_x = fst mouse_pos - 200 in
         let board_y = snd mouse_pos - 80 in
-        if board_x >= 0 && board_y >= 0 then
+        Printf.printf "Mouse released at board position: (%d, %d)\n" board_x
+          board_y;
+        flush stdout;
+
+        if board_x >= 0 && board_y >= 0 then (
           let col = board_x / 50 in
           let row = board_y / 50 in
-          try
+          Printf.printf "Attempting to place block at cell: (%d, %d)\n" row col;
+          flush stdout;
+
+          if Board.can_place_block state.board block (row, col) then (
+            Printf.printf "Block can be placed. Placing block.\n";
+            flush stdout;
             Board.place_block state.board block (row, col);
             {
               state with
@@ -134,17 +153,27 @@ let handle_input state =
                 List.filter (fun b -> b != block) state.queued_blocks
                 @ [ Block.create_random_block () ];
               mouse_pos;
-            }
-          with _ -> { state with dragged_block = None; mouse_pos }
-        else { state with dragged_block = None; mouse_pos }
-    | None -> { state with mouse_pos }
-  else { state with mouse_pos }
+            })
+          else (
+            Printf.printf "Block cannot be placed.\n";
+            flush stdout;
+            { state with dragged_block = None; mouse_pos }))
+        else (
+          Printf.printf "Mouse released outside board boundaries.\n";
+          flush stdout;
+          { state with dragged_block = None; mouse_pos })
+    | None ->
+        Printf.printf "No block was being dragged.\n";
+        flush stdout;
+        { state with mouse_pos })
+  else state
 
 let draw_ui () = draw_text "SCORE: 0" 350 40 25 Color.white
 
 let rec loop state =
   if window_should_close () then ()
-  else begin
+  else
+    let state = handle_input state in
     begin_drawing ();
     clear_background (Color.create 70 130 180 255);
     draw_ui ();
@@ -153,4 +182,3 @@ let rec loop state =
     draw_dragged_block state;
     end_drawing ();
     loop state
-  end

@@ -28,3 +28,7 @@ val place_block : t -> Block.t -> int * int -> unit
 (**[place_block board block (r, c)] places [block] in [board] at position
    [(r, c)], aligning with the top left of [block], if [block] fits in that
    spot. *)
+
+val can_place_block : t -> Block.t -> int * int -> bool
+(**[can_place_block board block (r, c)] is true if [block] can be placed in
+   [board] at position [(r, c)], aligning with the top left of [block].*)
