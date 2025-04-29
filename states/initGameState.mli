@@ -6,6 +6,8 @@ type t = {
   queued_blocks : Block.t list;
   dragged_block : (Block.t * (int * int)) option;
   mouse_pos : int * int;
+  score : int;
+  game_over : bool;
 }
 
 val init : unit -> t

@@ -7,10 +7,12 @@ type t = {
   queued_blocks : Block.t list;
   dragged_block : (Block.t * (int * int)) option;
   mouse_pos : int * int;
+  score : int;
+  game_over : bool;
 }
 
 let init () =
-  let board = Board.create_board () in
+  let board = Board.create_board 8 in
   let active_blocks = Hashtbl.create 16 in
   let queued_blocks =
     [
@@ -25,6 +27,8 @@ let init () =
     queued_blocks;
     dragged_block = None;
     mouse_pos = (0, 0);
+    score = 0;
+    game_over = false;
   }
 
 let color_to_raylib = function
@@ -109,66 +113,96 @@ let get_block_at_pos state (x, y) =
 
 (* let board_pos_to_cell (x, y) = let col = (x - 200) / 50 in let row = (y - 80)
    / 50 in (row, col) *)
+let can_place_block board block (r, c) =
+  let shape = Block.get_shape block in
+  List.for_all
+    (fun (dr, dc) ->
+      let pos = (r + dr, c + dc) in
+      Board.is_valid_pos board pos && Board.is_empty_cell board pos)
+    shape
 
 let handle_input state =
-  let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
-  let state = { state with mouse_pos } in
+  if state.game_over then state
+  else
+    let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
+    let state = { state with mouse_pos } in
 
-  Printf.printf "Mouse position: (%d, %d)\n" (fst mouse_pos) (snd mouse_pos);
-  flush stdout;
+    Printf.printf "Mouse position: (%d, %d)\n" (fst mouse_pos) (snd mouse_pos);
+    flush stdout;
 
-  if is_mouse_button_pressed MouseButton.Left then (
-    match get_block_at_pos state mouse_pos with
-    | Some (block, offset) ->
-        Printf.printf "Block selected for dragging.\n";
-        flush stdout;
-        { state with dragged_block = Some (block, offset) }
-    | None ->
-        Printf.printf "No block selected.\n";
-        flush stdout;
-        state)
-  else if is_mouse_button_released MouseButton.Left then (
-    match state.dragged_block with
-    | Some (block, _) ->
-        let board_x = fst mouse_pos - 200 in
-        let board_y = snd mouse_pos - 80 in
-        Printf.printf "Mouse released at board position: (%d, %d)\n" board_x
-          board_y;
-        flush stdout;
-
-        if board_x >= 0 && board_y >= 0 then (
-          let col = board_x / 50 in
-          let row = board_y / 50 in
-          Printf.printf "Attempting to place block at cell: (%d, %d)\n" row col;
+    if is_mouse_button_pressed MouseButton.Left then (
+      match get_block_at_pos state mouse_pos with
+      | Some (block, offset) ->
+          Printf.printf "Block selected for dragging.\n";
+          flush stdout;
+          { state with dragged_block = Some (block, offset) }
+      | None ->
+          Printf.printf "No block selected.\n";
+          flush stdout;
+          state)
+    else if is_mouse_button_released MouseButton.Left then (
+      match state.dragged_block with
+      | Some (block, _) ->
+          let board_x = fst mouse_pos - 200 in
+          let board_y = snd mouse_pos - 80 in
+          Printf.printf "Mouse released at board position: (%d, %d)\n" board_x
+            board_y;
           flush stdout;
 
-          if Board.can_place_block state.board block (row, col) then (
-            Printf.printf "Block can be placed. Placing block.\n";
+          if board_x >= 0 && board_y >= 0 then (
+            let col = board_x / 50 in
+            let row = board_y / 50 in
+            Printf.printf "Attempting to place block at cell: (%d, %d)\n" row
+              col;
             flush stdout;
-            Board.place_block state.board block (row, col);
-            {
-              state with
-              dragged_block = None;
-              queued_blocks =
-                List.filter (fun b -> b != block) state.queued_blocks
-                @ [ Block.create_random_block () ];
-              mouse_pos;
-            })
+
+            if can_place_block state.board block (row, col) then (
+              Printf.printf "Block can be placed. Placing block.\n";
+              flush stdout;
+              Board.place_block state.board block (row, col);
+              let cleared = Board.clear_full_lines state.board in
+              let new_score = state.score + (cleared * 100) in
+
+              let new_queued_blocks =
+                List.filter (fun b -> b <> block) state.queued_blocks
+              in
+
+              let final_queued_blocks =
+                if List.length new_queued_blocks = 0 then
+                  [
+                    Block.create_random_block ();
+                    Block.create_random_block ();
+                    Block.create_random_block ();
+                  ]
+                else new_queued_blocks
+              in
+
+              let game_over = Board.no_moves state.board final_queued_blocks in
+
+              {
+                state with
+                dragged_block = None;
+                queued_blocks = final_queued_blocks;
+                mouse_pos;
+                score = new_score;
+                game_over;
+              })
+            else (
+              Printf.printf "Block cannot be placed.\n";
+              flush stdout;
+              { state with dragged_block = None }))
           else (
-            Printf.printf "Block cannot be placed.\n";
+            Printf.printf "Mouse released outside board boundaries.\n";
             flush stdout;
-            { state with dragged_block = None; mouse_pos }))
-        else (
-          Printf.printf "Mouse released outside board boundaries.\n";
+            { state with dragged_block = None })
+      | None ->
+          Printf.printf "No block was being dragged.\n";
           flush stdout;
-          { state with dragged_block = None; mouse_pos })
-    | None ->
-        Printf.printf "No block was being dragged.\n";
-        flush stdout;
-        { state with mouse_pos })
-  else state
+          state)
+    else state
 
-let draw_ui () = draw_text "SCORE: 0" 350 40 25 Color.white
+let draw_ui state =
+  draw_text (Printf.sprintf "SCORE: %d" state.score) 350 40 25 Color.white
 
 let rec loop state =
   if window_should_close () then ()
@@ -176,9 +210,9 @@ let rec loop state =
     let state = handle_input state in
     begin_drawing ();
     clear_background (Color.create 70 130 180 255);
-    draw_ui ();
+    draw_ui state;
     draw_board state.board;
     draw_block_queue state.queued_blocks;
     draw_dragged_block state;
     end_drawing ();
-    loop state
+    if not state.game_over then loop state
