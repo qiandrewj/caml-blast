@@ -1,7 +1,7 @@
 type t
 (**The abstract type representing a block.*)
 
-type color = R | G | B | Y | P
+type color = R | G | B | Y | P | Pi | O
 (**The type representing a block's color. *)
 
 type shape = (int * int) list

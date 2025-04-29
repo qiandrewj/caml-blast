@@ -12,7 +12,8 @@ let test_random_blocks _ =
     (fun block ->
       let color = Block.get_color block in
       assert_bool "Valid color"
-        (List.mem color [ Block.R; Block.G; Block.B; Block.Y; Block.P ]);
+        (List.mem color
+           [ Block.R; Block.G; Block.B; Block.Y; Block.P; Block.Pi; Block.O ]);
       let shape = Block.get_shape block in
       assert_bool "Non-empty shape" (shape <> []))
     blocks
