@@ -40,12 +40,16 @@ let place_block board block (r, c) =
         let pos = (r + dr, c + dc) in
         is_valid_pos board pos && is_empty_cell board pos)
       shape
-  then
+  then (
+    Printf.printf "Placing block at starting position (%d, %d)\n" r c;
+    flush stdout;
     List.iter
       (fun (dr, dc) ->
         let pos = (r + dr, c + dc) in
+        Printf.printf "Placing block part at (%d, %d)\n" (fst pos) (snd pos);
+        flush stdout;
         set_cell board pos (Block color))
-      shape
+      shape)
   else failwith "Block cannot be placed there"
 
 let clear_full_lines board =

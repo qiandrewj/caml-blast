@@ -1,0 +1,155 @@
+commit 4d3cea13dbdcf0ac2b8d310247bad620641bb427
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 23:39:12 2025 -0400
+
+    edit yaml url
+    
+    - uploaded video to public google drive url & pasted link in yaml
+
+commit 80baeec103a489c53592e38d488e30d61e020d0f
+Author: Paige Yun <paigehyun@gmail.com>
+Date:   Fri Mar 28 23:32:36 2025 -0400
+
+    title state animation and main ddisplays both title and init game screen
+
+commit 2045780c69c065aa5332a2b5a76c6b9f6a9d6ccb
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 22:24:23 2025 -0400
+
+    Implement drawing of blocks/board in initial
+    
+    - updated interface/implementation files
+    - added drawing capabilities
+
+commit 110a18002becfb9fa9b6ea3aef294735a185585c
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 18:45:31 2025 -0400
+
+    Add functionaltiy for drawing board & blocks  for init state
+    
+    - adding functions in initgamestate.ml file
+
+commit 8315d2e6a64803018909fd036be51203d294c04f
+Merge: 473ef3e e2e8935
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 17:48:37 2025 -0400
+
+    Merge branch 'phy/gameinit' of github.com:qiandrewj/block-blast into annie/frontend
+
+commit 473ef3ee692589e0fe84709261ec731259a14f9a
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 17:45:12 2025 -0400
+
+    finish merge
+
+commit e2e8935bc4f9e3cf13d1670786c790a48f543689
+Author: Paige Yun <paigehyun@gmail.com>
+Date:   Fri Mar 28 17:44:35 2025 -0400
+
+    constants
+
+commit 38835ffa70ad0ed8a9fbd24f9841207984b7285d
+Merge: 6a1a3e4 9a4600e
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 17:41:47 2025 -0400
+
+    Merge branch 'phy/gameinit' of github.com:qiandrewj/block-blast into annie/frontend
+
+commit 9a4600e3e2ae13b1694f2bdcc32a8bde6b7f5cf5
+Author: Paige Yun <paigehyun@gmail.com>
+Date:   Fri Mar 28 17:40:55 2025 -0400
+
+    info between states
+
+commit 6a1a3e40dc378cd8c80fb23e863ba0c96cdb9ba8
+Merge: 58ee3c7 7ffa05c
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 17:34:43 2025 -0400
+
+    Merge branch 'phy/gameinit' of github.com:qiandrewj/block-blast into annie/frontend
+
+commit 7ffa05c08f46be41c566bd293507c203ec17f5be
+Author: Paige Yun <paigehyun@gmail.com>
+Date:   Fri Mar 28 17:26:59 2025 -0400
+
+    changed title state
+
+commit 58ee3c735a494afc394404f23bd768e97ca51259
+Author: Annie Chen <anc76@cornell.edu>
+Date:   Fri Mar 28 16:59:22 2025 -0400
+
+    Add state.ml file to track states
+    
+    - keep type of states as an enum
+
+commit 70a2f9f61052917e0c09d2311f02608550604337
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Wed Mar 26 17:40:22 2025 -0400
+
+    Added random block creation and block placement
+    - Random initialized in main
+
+commit 879ac823296a9a4f433d1e7aba2bc449c31b40a3
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Tue Mar 25 19:01:55 2025 -0400
+
+    added block shapes
+
+commit 3e6bed9acab24e7222fa0c35c23d62661ed07b94
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Mon Mar 24 22:03:11 2025 -0400
+
+    added install.md
+
+commit f4703be5f3746cb1b9b24ec62108a90a72032f3b
+Merge: cc21d77 2d6c676
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Sun Mar 23 18:18:26 2025 -0400
+
+    Merge branch 'main' of https://github.com/qiandrewj/block-blast
+
+commit cc21d77aaa2150f10f3b242a9858becd5823a9c7
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Sun Mar 23 18:17:42 2025 -0400
+
+    description in yaml file
+
+commit 2d6c676f357b7c42612f796695425856ff2a6e47
+Author: Paige Yun <paigehyun@gmail.com>
+Date:   Sun Mar 23 18:09:21 2025 -0400
+
+    Implemented initial GUI of setup screen to game board transition
+    
+    - Read documentation of Raylib and Raygui
+    - https://ocaml.org/p/raylib/0.5.1/doc/Raylib/index.html
+    - https://tjammer.github.io/raylib-ocaml/raygui/Raygui/index.html#state-modification-functions
+
+commit b594d345e2a86473921c7b3ec6d17f301d335226
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Sun Mar 23 17:49:47 2025 -0400
+
+    Basic simulation code
+
+commit 66c67af583bbd0eb64fb3df32613952b93b60922
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Sun Mar 23 16:27:17 2025 -0400
+
+    adding yaml file and libraries
+
+commit ecd3d7820e9c8d71138caef37c0ae08422b2990f
+Author: Paige Yun <phy6@cornell.edu>
+Date:   Sun Mar 23 16:16:44 2025 -0400
+
+    Created compilation units for blocks and grid
+
+commit 89935b71fb0b6a9aa94f2cc62b698b274e01d1ba
+Author: Andrew Qian <60044045+qiandrewj@users.noreply.github.com>
+Date:   Thu Mar 20 17:17:20 2025 -0400
+
+    Add README
+
+commit cf196a463f27baf5c74f42bf0b428e7d4b1cec7d
+Author: qiandrewj <qiandrewj@gmail.com>
+Date:   Thu Mar 20 17:05:48 2025 -0400
+
+    startup
