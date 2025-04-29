@@ -7,9 +7,7 @@ type t = {
   size : int;
 }
 
-let board_size = 8
-
-let create_board () =
+let create_board board_size =
   let b = Array.make_matrix board_size board_size Empty in
   { grid = b; size = board_size }
 
@@ -23,18 +21,8 @@ let get_cell board (r, c) =
   else raise (Invalid_argument "Out of bounds")
 
 let set_cell board (r, c) cell =
-  (* if is_valid_pos board (r, c) then board.grid.(r).(c) <- cell *)
-  if is_valid_pos board (r, c) then (
-    Printf.printf "Setting cell (%d, %d) to %s\n" r c
-      (match cell with
-      | Empty -> "Empty"
-      | Block color -> "Block");
-    flush stdout;
-    board.grid.(r).(c) <- cell)
-  else
-    Printf.printf "Attempted to set cell (%d, %d), but it is out of bounds\n" r
-      c;
-  flush stdout
+  if is_valid_pos board (r, c) then board.grid.(r).(c) <- cell
+  else raise (Invalid_argument "Out of bounds")
 
 let is_empty_cell board (r, c) =
   if is_valid_pos board (r, c) then
@@ -62,22 +50,59 @@ let place_block board block (r, c) =
         flush stdout;
         set_cell board pos (Block color))
       shape)
-  else (
-    Printf.printf "Block cannot be placed at (%d, %d)\n" r c;
-    flush stdout;
-    failwith "Block cannot be placed there")
-(* else failwith "Block cannot be placed there" *)
+  else failwith "Block cannot be placed there"
 
-let can_place_block board block (r, c) =
-  let shape = Block.get_shape block in
-  List.for_all
-    (fun (dr, dc) ->
-      let row = r + dr in
-      let col = c + dc in
-      let valid =
-        is_valid_pos board (row, col) && is_empty_cell board (row, col)
-      in
-      Printf.printf "Checking cell (%d, %d): %b\n" row col valid;
-      flush stdout;
-      valid)
-    shape
+let clear_full_lines board =
+  let size = board.size in
+  let grid = board.grid in
+  let is_row_full r =
+    Array.for_all
+      (function
+        | Block _ -> true
+        | Empty -> false)
+      grid.(r)
+  in
+  let is_col_full c =
+    Array.for_all
+      (fun row ->
+        match row.(c) with
+        | Block _ -> true
+        | Empty -> false)
+      grid
+  in
+  let full_rows =
+    List.filter (fun r -> is_row_full r) (List.init size (fun x -> x))
+  in
+  let full_cols =
+    List.filter (fun c -> is_col_full c) (List.init size (fun x -> x))
+  in
+  List.iter
+    (fun r ->
+      for c = 0 to size - 1 do
+        grid.(r).(c) <- Empty
+      done)
+    full_rows;
+  List.iter
+    (fun c ->
+      for r = 0 to size - 1 do
+        grid.(r).(c) <- Empty
+      done)
+    full_cols;
+  List.length full_rows + List.length full_cols
+
+let no_moves board blocks =
+  let can_place block =
+    let shape = Block.get_shape block in
+    List.exists
+      (fun r ->
+        List.exists
+          (fun c ->
+            List.for_all
+              (fun (dr, dc) ->
+                let pos = (r + dr, c + dc) in
+                is_valid_pos board pos && is_empty_cell board pos)
+              shape)
+          (List.init board.size (fun x -> x)))
+      (List.init board.size (fun x -> x))
+  in
+  not (List.exists can_place blocks)

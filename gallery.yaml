@@ -22,7 +22,7 @@ git-repo: "https://github.com/qiandrewj/block-blast"
 demo-video-url: "https://drive.google.com/file/d/14dV5wUsxzas9DvRxuEjXAmo7chZR5aUu/view"
 # Write a short, attention-grabbing description of your project.
 desc: >
-  Our project is a puzzle game where you place differently-shaped
+  Our project is a puzzle game where you place Tetris-like
   blocks in a grid, clearing lines to earn points. The goal of the
   game is to strategically place the blocks to clear rows and columns
   in an efficient manner, as the game is over when you can no longer
