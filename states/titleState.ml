@@ -65,7 +65,7 @@ let start_game () =
   if not !game_started then
     if button start_button_rect "PLAY" then game_started := true else ()
 
-let state = InitGameState.init ()
+let state = PlayGameState.init ()
 
 let update () =
   let delta_time = get_frame_time () in
