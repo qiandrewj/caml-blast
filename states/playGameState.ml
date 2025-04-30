@@ -32,6 +32,7 @@ let init () =
     game_over = false;
   }
 
+(**[color_to_raylib block_color] is the Raylib color of [block_color].*)
 let color_to_raylib = function
   | Block.R -> Color.red
   | G -> Color.green
@@ -41,12 +42,14 @@ let color_to_raylib = function
   | Pi -> Color.pink
   | O -> Color.orange
 
+(**[draw_cell x y cell] draws the board [cell] at [x, y].*)
 let draw_cell x y = function
   | Board.Empty -> draw_rectangle x y 50 50 (Color.create 245 245 245 255)
   | Board.Block color ->
       draw_rectangle x y 50 50 (color_to_raylib color);
       draw_rectangle_lines x y 50 50 (Color.create 50 50 50 255)
 
+(**[draw_board board] draws the game board.*)
 let draw_board board =
   draw_rectangle 200 80 (8 * 50) (8 * 50) (Color.create 245 245 245 255);
 
@@ -75,6 +78,7 @@ let draw_board board =
       (Color.create 0 0 0 255)
   done
 
+(**[draw_block_with_shape x y block] draws [block] at [x, y].*)
 let draw_block_with_shape x y block =
   let color = color_to_raylib (Block.get_color block) in
   let shape = Block.get_shape block in
@@ -85,6 +89,7 @@ let draw_block_with_shape x y block =
       draw_rectangle_lines (x + (dc * 30)) (y + (dr * 30)) 28 28 Color.white)
     shape
 
+(**[draw_block_queue blocks] draws the upcoming queue [blocks].*)
 let draw_block_queue blocks =
   Array.iteri
     (fun i block_opt ->
@@ -95,6 +100,7 @@ let draw_block_queue blocks =
       | None -> ())
     blocks
 
+(**[draw_dragged_block state] draws the currently dragged block in [state].*)
 let draw_dragged_block state =
   match state.dragged_block with
   | Some (block, (offset_x, offset_y)) ->
@@ -103,6 +109,8 @@ let draw_dragged_block state =
       draw_block_with_shape x y block
   | None -> ()
 
+(**[get_block_at_pos state (x, y)] gets the queued block in [state] at position
+   [x, y].*)
 let get_block_at_pos state (x, y) =
   if y >= 520 && y < 520 + 120 then
     let index = (x - 200) / 150 in
@@ -127,6 +135,8 @@ let get_block_at_pos state (x, y) =
     else None
   else None
 
+(**[can_place_block board block (r, c)] is [true] if and only if [block] can be
+   placed in [board] at [r, c].*)
 let can_place_block board block (r, c) =
   let shape = Block.get_shape block in
   List.for_all
@@ -135,6 +145,7 @@ let can_place_block board block (r, c) =
       Board.is_valid_pos board pos && Board.is_empty_cell board pos)
     shape
 
+(**[handle_input state] is the updated state after handling mouse input.*)
 let handle_input state =
   if state.game_over then state
   else
@@ -192,6 +203,7 @@ let handle_input state =
       | None -> state
     else state
 
+(**[draw_ui state] draws additional UI elements for [state].*)
 let draw_ui state =
   draw_text (Printf.sprintf "SCORE: %d" state.score) 350 40 25 Color.white
 

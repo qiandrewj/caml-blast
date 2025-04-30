@@ -9,6 +9,10 @@ type t = {
   score : int;
   game_over : bool;
 }
+(**The abstract type representing the playing game state.*)
 
 val init : unit -> t
+(**[init ()] creates an initial game state.*)
+
 val loop : t -> unit
+(**[loop state] updates [state] for a time step.*)
