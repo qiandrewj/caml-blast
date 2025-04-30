@@ -1,5 +1,12 @@
 open Raylib
+open Raygui
 open Blockblast
+
+type clear_animation = {
+  rows : int list;
+  cols : int list;
+  progress : float;
+}
 
 type t = {
   board : Board.t;
@@ -9,6 +16,7 @@ type t = {
   mouse_pos : int * int;
   score : int;
   game_over : bool;
+  clear_animation : clear_animation option;
 }
 
 let init () =
@@ -30,6 +38,7 @@ let init () =
     mouse_pos = (0, 0);
     score = 0;
     game_over = false;
+    clear_animation = None;
   }
 
 (**[color_to_raylib block_color] is the Raylib color of [block_color].*)
@@ -45,9 +54,7 @@ let color_to_raylib = function
 (**[draw_cell x y cell] draws the board [cell] at [x, y].*)
 let draw_cell x y = function
   | Board.Empty -> draw_rectangle x y 50 50 (Color.create 245 245 245 255)
-  | Board.Block color ->
-      draw_rectangle x y 50 50 (color_to_raylib color);
-      draw_rectangle_lines x y 50 50 (Color.create 50 50 50 255)
+  | Board.Block color -> draw_rectangle x y 50 50 (color_to_raylib color)
 
 (**[draw_board board] draws the game board.*)
 let draw_board board =
@@ -107,6 +114,43 @@ let draw_dragged_block state =
       let x = fst state.mouse_pos - offset_x in
       let y = snd state.mouse_pos - offset_y in
       draw_block_with_shape x y block
+  | None -> ()
+
+let draw_clear_animation state =
+  match state.clear_animation with
+  | Some a ->
+      let effect_size = int_of_float (50.0 *. a.progress) in
+      List.iter
+        (fun row ->
+          let y = 80 + (row * 50) in
+          draw_rectangle
+            (200 - (effect_size / 2))
+            y (400 + effect_size) 50
+            (Color.create 255 255 255
+               (int_of_float (255.0 *. (1.0 -. a.progress))));
+          for i = 0 to 7 do
+            let angle = float_of_int i *. (2.0 *. Float.pi /. 8.0) in
+            let px = 400 + int_of_float (float effect_size *. cos angle) in
+            let py = y + 25 + int_of_float (float effect_size *. sin angle) in
+            draw_circle px py 8. (Color.create 255 255 0 200)
+          done)
+        a.rows;
+
+      List.iter
+        (fun col ->
+          let x = 200 + (col * 50) in
+          draw_rectangle x
+            (80 - (effect_size / 2))
+            50 (400 + effect_size)
+            (Color.create 255 255 255
+               (int_of_float (255.0 *. (1.0 -. a.progress))));
+          for i = 0 to 5 do
+            let angle = float_of_int i *. (2.0 *. Float.pi /. 8.0) in
+            let px = x + 25 + int_of_float (float effect_size *. sin angle) in
+            let py = 280 + int_of_float (float effect_size *. cos angle) in
+            draw_circle px py 8. (Color.create 255 255 0 200)
+          done)
+        a.cols
   | None -> ()
 
 (**[get_block_at_pos state (x, y)] gets the queued block in [state] at position
@@ -170,14 +214,27 @@ let handle_input state =
 
             if can_place_block state.board block (row, col) then (
               Board.place_block state.board block (row, col);
-              let cleared = Board.clear_full_lines state.board in
-              let new_score = state.score + (cleared * 100) in
-
+              let cleared_rows, cleared_cols =
+                Board.clear_full_lines state.board
+              in
+              let cleared_count =
+                List.length cleared_rows + List.length cleared_cols
+              in
+              let new_score = state.score + (cleared_count * 100) in
+              let new_animation =
+                if cleared_count > 0 then
+                  Some
+                    { rows = cleared_rows; cols = cleared_cols; progress = 0.0 }
+                else None
+              in
               let all_empty = Array.for_all (( = ) None) state.queued_blocks in
               if all_empty then
                 state.queued_blocks <-
                   Array.of_list
                     [
+                      (* Some (Block.create_block R Block.sqr); Some
+                         (Block.create_block R Block.sqr); Some
+                         (Block.create_block R Block.sqr); *)
                       Some (Block.create_random_block ());
                       Some (Block.create_random_block ());
                       Some (Block.create_random_block ());
@@ -188,7 +245,13 @@ let handle_input state =
                   (Array.to_list state.queued_blocks
                   |> List.filter_map (fun x -> x))
               in
-              { state with dragged_block = None; score = new_score; game_over })
+              {
+                state with
+                dragged_block = None;
+                score = new_score;
+                game_over;
+                clear_animation = new_animation;
+              })
             else
               let orig_index = (fst mouse_pos - 200) / 150 in
               if
@@ -211,11 +274,24 @@ let rec loop state =
   if window_should_close () then ()
   else
     let state = handle_input state in
+    let state =
+      match state.clear_animation with
+      | Some anim when anim.progress < 1.0 ->
+          {
+            state with
+            clear_animation =
+              Some { anim with progress = min 1.0 (anim.progress +. 0.05) };
+          }
+      | Some anim when anim.progress >= 1.0 ->
+          { state with clear_animation = None }
+      | _ -> state
+    in
     begin_drawing ();
     clear_background (Color.create 70 130 180 255);
     draw_ui state;
     draw_board state.board;
     draw_block_queue state.queued_blocks;
     draw_dragged_block state;
+    draw_clear_animation state;
     end_drawing ();
     if not state.game_over then loop state

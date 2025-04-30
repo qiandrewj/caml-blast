@@ -88,7 +88,7 @@ let clear_full_lines board =
         grid.(r).(c) <- Empty
       done)
     full_cols;
-  List.length full_rows + List.length full_cols
+  (full_rows, full_cols)
 
 let no_moves board blocks =
   let can_place block =

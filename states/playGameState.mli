@@ -1,5 +1,12 @@
 open Blockblast
 
+type clear_animation = {
+  rows: int list;
+  cols: int list;
+  progress: float;
+}
+(**The type representing a clearing animation for the board.*)
+
 type t = {
   board : Board.t;
   active_blocks : (int * int, Block.t) Hashtbl.t;
@@ -8,6 +15,7 @@ type t = {
   mouse_pos : int * int;
   score : int;
   game_over : bool;
+  clear_animation: clear_animation option;
 }
 (**The abstract type representing the playing game state.*)
 
