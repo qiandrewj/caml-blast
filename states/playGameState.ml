@@ -121,8 +121,7 @@ let get_block_at_pos state (x, y) =
               shape
           in
           match cell_opt with
-          | Some (dr, dc) ->
-              Some (block, (x - (base_x + (dc * 30)), y - (base_y + (dr * 30))))
+          | Some _ -> Some (block, (x - base_x, y - base_y))
           | None -> None)
       | None -> None
     else None
@@ -143,20 +142,20 @@ let handle_input state =
     let state = { state with mouse_pos } in
     if is_mouse_button_pressed MouseButton.Left then
       match get_block_at_pos state mouse_pos with
-      | Some (block, offset) ->
+      | Some (block, (click_x, click_y)) ->
           let index = (fst mouse_pos - 200) / 150 in
           state.queued_blocks.(index) <- None;
-          { state with dragged_block = Some (block, offset) }
+          { state with dragged_block = Some (block, (click_x, click_y)) }
       | None -> state
     else if is_mouse_button_released MouseButton.Left then
       match state.dragged_block with
-      | Some (block, _) ->
+      | Some (block, (offset_x, offset_y)) ->
           let board_x = fst mouse_pos - 200 in
           let board_y = snd mouse_pos - 80 in
 
           if board_x >= 0 && board_y >= 0 then (
-            let col = board_x / 50 in
-            let row = board_y / 50 in
+            let col = (board_x - offset_x) / 50 in
+            let row = (board_y - offset_y) / 50 in
 
             if can_place_block state.board block (row, col) then (
               Board.place_block state.board block (row, col);

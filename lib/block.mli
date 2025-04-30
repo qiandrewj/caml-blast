@@ -1,11 +1,18 @@
 type t
 (**The abstract type representing a block.*)
 
-type color = R | G | B | Y | P | Pi | O
-(**The type representing a block's color. *)
+type color =
+  | R
+  | G
+  | B
+  | Y
+  | P
+  | Pi
+  | O  (**The type representing a block's color. *)
 
 type shape = (int * int) list
-(**The type representing a block's shape as relative coordinates from the top left.*)
+(**The type representing a block's shape as relative coordinates from the top
+   left.*)
 
 val create_block : color -> shape -> t
 (**[create_block color shape] is a new block of [color] and [shape].*)
@@ -31,7 +38,7 @@ val big_sqr : shape
 val hor_line : shape
 (**[hor_line] is a horizontal line of length 4. *)
 
-val vert_line : shape 
+val vert_line : shape
 (**[vert_line] is a vertical line of length 4. *)
 
 val big_l : shape
@@ -52,13 +59,13 @@ val t_left : shape
 val t_right : shape
 (**[t_right] is a 4-block T-shape, with the "stem" pointing right. *)
 
-val s_right: shape
+val s_right : shape
 (**[s_right] is a 4-block S-shape. *)
 
 val s_left : shape
 (**[s_left] is a 4-block S-shape, reflected over the y-axis. *)
 
-val s_down: shape
+val s_down : shape
 (**[s_down] is a 4-block S-shape, rotated 90-degrees. *)
 
 val l_up : shape
