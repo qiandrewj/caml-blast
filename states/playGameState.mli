@@ -4,6 +4,7 @@ type clear_animation = {
   rows: int list;
   cols: int list;
   progress: float;
+  center_pos : int * int
 }
 (**The type representing a clearing animation for the board.*)
 

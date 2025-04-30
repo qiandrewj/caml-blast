@@ -6,6 +6,7 @@ type clear_animation = {
   rows : int list;
   cols : int list;
   progress : float;
+  center_pos : int * int;
 }
 
 type t = {
@@ -19,17 +20,21 @@ type t = {
   clear_animation : clear_animation option;
 }
 
+(**[init_block_queue ()] is an array of three random blocks.*)
+let init_block_queue () =
+  Array.of_list
+    [
+      (* Some (Block.create_block R Block.hor_line);
+      Some (Block.create_block R Block.hor_line);
+      Some (Block.create_block R Block.hor_line); *)
+      Some (Block.create_random_block ()); Some (Block.create_random_block
+         ()); Some (Block.create_random_block ());
+    ]
+
 let init () =
   let board = Board.create_board 8 in
-  let active_blocks = Hashtbl.create 16 in
-  let queued_blocks =
-    Array.of_list
-      [
-        Some (Block.create_random_block ());
-        Some (Block.create_random_block ());
-        Some (Block.create_random_block ());
-      ]
-  in
+  let active_blocks = Hashtbl.create 32 in
+  let queued_blocks = init_block_queue () in
   {
     board;
     active_blocks;
@@ -116,6 +121,22 @@ let draw_dragged_block state =
       draw_block_with_shape x y block
   | None -> ()
 
+(**[random_color ()] is a random rainbow color.*)
+let random_color () =
+  let rainbow =
+    [|
+      Color.red;
+      Color.orange;
+      Color.yellow;
+      Color.green;
+      Color.blue;
+      Color.purple;
+      Color.pink;
+    |]
+  in
+  let index = Random.int (Array.length rainbow) in
+  rainbow.(index)
+
 let draw_clear_animation state =
   match state.clear_animation with
   | Some a ->
@@ -130,9 +151,10 @@ let draw_clear_animation state =
                (int_of_float (255.0 *. (1.0 -. a.progress))));
           for i = 0 to 7 do
             let angle = float_of_int i *. (2.0 *. Float.pi /. 8.0) in
-            let px = 400 + int_of_float (float effect_size *. cos angle) in
-            let py = y + 25 + int_of_float (float effect_size *. sin angle) in
-            draw_circle px py 8. (Color.create 255 255 0 200)
+            let center_x, center_y = a.center_pos in
+            let px = center_x + int_of_float (float effect_size *. cos angle) in
+            let py = center_y + int_of_float (float effect_size *. sin angle) in
+            draw_rectangle px py 8 8 (random_color ())
           done)
         a.rows;
 
@@ -146,9 +168,10 @@ let draw_clear_animation state =
                (int_of_float (255.0 *. (1.0 -. a.progress))));
           for i = 0 to 5 do
             let angle = float_of_int i *. (2.0 *. Float.pi /. 8.0) in
-            let px = x + 25 + int_of_float (float effect_size *. sin angle) in
-            let py = 280 + int_of_float (float effect_size *. cos angle) in
-            draw_circle px py 8. (Color.create 255 255 0 200)
+            let center_x, center_y = a.center_pos in
+            let px = center_x + int_of_float (float effect_size *. sin angle) in
+            let py = center_y + int_of_float (float effect_size *. cos angle) in
+            draw_rectangle px py 8 8 (random_color ())
           done)
         a.cols
   | None -> ()
@@ -156,7 +179,7 @@ let draw_clear_animation state =
 (**[get_block_at_pos state (x, y)] gets the queued block in [state] at position
    [x, y].*)
 let get_block_at_pos state (x, y) =
-  if y >= 520 && y < 520 + 120 then
+  if y >= 520 && y < 520 + 160 then
     let index = (x - 200) / 150 in
     if index >= 0 && index < Array.length state.queued_blocks then
       match state.queued_blocks.(index) with
@@ -224,22 +247,16 @@ let handle_input state =
               let new_animation =
                 if cleared_count > 0 then
                   Some
-                    { rows = cleared_rows; cols = cleared_cols; progress = 0.0 }
+                    {
+                      rows = cleared_rows;
+                      cols = cleared_cols;
+                      progress = 0.0;
+                      center_pos = mouse_pos;
+                    }
                 else None
               in
               let all_empty = Array.for_all (( = ) None) state.queued_blocks in
-              if all_empty then
-                state.queued_blocks <-
-                  Array.of_list
-                    [
-                      (* Some (Block.create_block R Block.sqr); Some
-                         (Block.create_block R Block.sqr); Some
-                         (Block.create_block R Block.sqr); *)
-                      Some (Block.create_random_block ());
-                      Some (Block.create_random_block ());
-                      Some (Block.create_random_block ());
-                    ];
-
+              if all_empty then state.queued_blocks <- init_block_queue ();
               let game_over =
                 Board.no_moves state.board
                   (Array.to_list state.queued_blocks
