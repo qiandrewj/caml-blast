@@ -13,7 +13,7 @@ type t = {
   board : Board.t;
   active_blocks : (int * int, Block.t) Hashtbl.t;
   mutable queued_blocks : Block.t option array;
-  dragged_block : (Block.t * (int * int)) option;
+  dragged_block : (Block.t * (int * int) * int) option;
   mouse_pos : int * int;
   score : int;
   game_over : bool;
@@ -24,11 +24,11 @@ type t = {
 let init_block_queue () =
   Array.of_list
     [
-      (* Some (Block.create_block R Block.hor_line);
-      Some (Block.create_block R Block.hor_line);
-      Some (Block.create_block R Block.hor_line); *)
-      Some (Block.create_random_block ()); Some (Block.create_random_block
-         ()); Some (Block.create_random_block ());
+      (* Some (Block.create_block R Block.hor_line); Some (Block.create_block R
+         Block.hor_line); Some (Block.create_block R Block.hor_line); *)
+      Some (Block.create_random_block ());
+      Some (Block.create_random_block ());
+      Some (Block.create_random_block ());
     ]
 
 let init () =
@@ -115,7 +115,7 @@ let draw_block_queue blocks =
 (**[draw_dragged_block state] draws the currently dragged block in [state].*)
 let draw_dragged_block state =
   match state.dragged_block with
-  | Some (block, (offset_x, offset_y)) ->
+  | Some (block, (offset_x, offset_y), _) ->
       let x = fst state.mouse_pos - offset_x in
       let y = snd state.mouse_pos - offset_y in
       draw_block_with_shape x y block
@@ -223,15 +223,15 @@ let handle_input state =
       | Some (block, (click_x, click_y)) ->
           let index = (fst mouse_pos - 200) / 150 in
           state.queued_blocks.(index) <- None;
-          { state with dragged_block = Some (block, (click_x, click_y)) }
+          { state with dragged_block = Some (block, (click_x, click_y), index) }
       | None -> state
     else if is_mouse_button_released MouseButton.Left then
       match state.dragged_block with
-      | Some (block, (offset_x, offset_y)) ->
+      | Some (block, (offset_x, offset_y), orig_index) ->
           let board_x = fst mouse_pos - 200 in
           let board_y = snd mouse_pos - 80 in
 
-          if board_x >= 0 && board_y >= 0 then (
+          if board_x >= 0 && board_y >= 0 then
             let col = (board_x - offset_x) / 50 in
             let row = (board_y - offset_y) / 50 in
 
@@ -269,17 +269,15 @@ let handle_input state =
                 game_over;
                 clear_animation = new_animation;
               })
-            else
-              let orig_index = (fst mouse_pos - 200) / 150 in
+            else (
               if
                 orig_index >= 0 && orig_index < Array.length state.queued_blocks
               then state.queued_blocks.(orig_index) <- Some block;
               { state with dragged_block = None })
-          else
-            let orig_index = (fst mouse_pos - 200) / 150 in
+          else (
             if orig_index >= 0 && orig_index < Array.length state.queued_blocks
             then state.queued_blocks.(orig_index) <- Some block;
-            { state with dragged_block = None }
+            { state with dragged_block = None })
       | None -> state
     else state
 
