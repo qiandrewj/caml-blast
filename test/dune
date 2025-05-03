@@ -1,3 +1,7 @@
 (test
  (name test_blockblast)
  (libraries ounit2 blockblast))
+
+(test
+ (name test_scoring)
+ (libraries ounit2 blockblast))
