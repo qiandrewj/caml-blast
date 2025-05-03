@@ -4,6 +4,8 @@ type color =
   | B
   | Y
   | P
+  | Pi
+  | O
 
 type shape = (int * int) list
 
@@ -44,7 +46,7 @@ let l_right = [ (0, 0); (1, 0); (0, 1); (0, 2) ]
 let () = Random.self_init ()
 
 let create_random_block () =
-  let colors = [ R; G; B; Y; P ] in
+  let colors = [ R; G; B; Y; P; Pi; O ] in
   let shapes =
     [
       one;
