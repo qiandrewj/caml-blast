@@ -59,6 +59,22 @@ let test_to_string =
   let str = TestScoring.to_string s in
   assert_equal "Score 250" str ~printer:(fun s -> s)
 
+let test_add_block_score =
+  "test_add_block_score" >:: fun _ ->
+  let s = TestScoring.create () in
+  let b = Block.create_block Block.P Block.sqr in
+  TestScoring.add_block_score s b;
+  let expected = TestScoring.block_pts b in
+  assert_equal expected (TestScoring.get_score s) ~printer:string_of_int
+
+let test_add_line_clear_score =
+  "test_add_line_clear_score" >:: fun _ ->
+  let s = TestScoring.create () in
+  TestScoring.add_line_clear_score s 2;
+  let expected = TestScoring.line_pts 1 2 in
+  assert_equal expected (TestScoring.get_score s) ~printer:string_of_int;
+  assert_equal 1 (TestScoring.get_combos s) ~printer:string_of_int
+
 let tests =
   "test_scoring"
   >::: [
@@ -69,6 +85,8 @@ let tests =
          test_bonus;
          test_reset;
          test_to_string;
+         test_add_block_score;
+         test_add_line_clear_score;
        ]
 
 let _ = run_test_tt_main tests

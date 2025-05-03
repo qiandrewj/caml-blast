@@ -58,5 +58,11 @@ module MakeScoring (R : ScoringRules) = struct
     t.score <- 0;
     t.combos <- 0
 
+  let add_block_score s block = s.score <- s.score + block_pts block
+
+  let add_line_clear_score s lines_cleared =
+    if lines_cleared > 0 then s.combos <- s.combos + 1 else s.combos <- 0;
+    s.score <- s.score + line_pts s.combos lines_cleared
+
   let to_string t = Printf.sprintf "Score %d" t.score
 end

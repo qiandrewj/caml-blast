@@ -9,13 +9,15 @@ type clear_animation = {
   center_pos : int * int;
 }
 
+module S = Scoring.MakeScoring (Scoring.DefaultRules)
+
 type t = {
   board : Board.t;
   active_blocks : (int * int, Block.t) Hashtbl.t;
   mutable queued_blocks : Block.t option array;
   dragged_block : (Block.t * (int * int)) option;
   mouse_pos : int * int;
-  score : int;
+  score_state : S.t;
   game_over : bool;
   clear_animation : clear_animation option;
 }
@@ -24,24 +26,25 @@ type t = {
 let init_block_queue () =
   Array.of_list
     [
-      (* Some (Block.create_block R Block.hor_line);
-      Some (Block.create_block R Block.hor_line);
-      Some (Block.create_block R Block.hor_line); *)
-      Some (Block.create_random_block ()); Some (Block.create_random_block
-         ()); Some (Block.create_random_block ());
+      (* Some (Block.create_block R Block.hor_line); Some (Block.create_block R
+         Block.hor_line); Some (Block.create_block R Block.hor_line); *)
+      Some (Block.create_random_block ());
+      Some (Block.create_random_block ());
+      Some (Block.create_random_block ());
     ]
 
 let init () =
   let board = Board.create_board 8 in
   let active_blocks = Hashtbl.create 32 in
   let queued_blocks = init_block_queue () in
+  let score_state = S.create () in
   {
     board;
     active_blocks;
     queued_blocks;
     dragged_block = None;
     mouse_pos = (0, 0);
-    score = 0;
+    score_state;
     game_over = false;
     clear_animation = None;
   }
@@ -240,10 +243,11 @@ let handle_input state =
               let cleared_rows, cleared_cols =
                 Board.clear_full_lines state.board
               in
+              S.add_block_score state.score_state block;
               let cleared_count =
                 List.length cleared_rows + List.length cleared_cols
               in
-              let new_score = state.score + (cleared_count * 100) in
+              S.add_line_clear_score state.score_state cleared_count;
               let new_animation =
                 if cleared_count > 0 then
                   Some
@@ -265,7 +269,6 @@ let handle_input state =
               {
                 state with
                 dragged_block = None;
-                score = new_score;
                 game_over;
                 clear_animation = new_animation;
               })
@@ -285,7 +288,7 @@ let handle_input state =
 
 (**[draw_ui state] draws additional UI elements for [state].*)
 let draw_ui state =
-  draw_text (Printf.sprintf "SCORE: %d" state.score) 350 40 25 Color.white
+  draw_text (S.to_string state.score_state) 350 40 25 Color.white
 
 let rec loop state =
   if window_should_close () then ()

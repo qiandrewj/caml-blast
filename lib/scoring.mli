@@ -20,4 +20,6 @@ module MakeScoring : functor (R : ScoringRules) -> sig
   val score_block : t -> Block.t -> int
   val score_lines : t -> int -> int
   val to_string : t -> string
+  val add_block_score : t -> Block.t -> unit
+  val add_line_clear_score : t -> int -> unit
 end
