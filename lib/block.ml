@@ -20,19 +20,19 @@ let get_shape block = block.shape
 
 (*SHAPE DEFS*)
 let one = [ (0, 0) ]
-let hor_two = [ (0, 0); (1, 0) ]
-let vert_two = [ (0, 0); (0, 1) ]
+let hor_line2 = [ (0, 0); (1, 0) ]
+let vert_line2 = [ (0, 0); (0, 1) ]
+let hor_line3 = [ (0, 0); (1, 0); (2, 0) ]
+let vert_line3 = [ (0, 0); (0, 1); (0, 2) ]
 let small_l1 = [ (0, 0); (0, 1); (1, 1) ]
 let small_l2 = [ (0, 0); (1, 0); (1, 1) ]
 let small_l3 = [ (0, 0); (1, 0); (0, 1) ]
 let small_l4 = [ (0, 0); (0, 1); (-1, 1) ]
 let sqr = [ (0, 0); (1, 0); (0, 1); (1, 1) ]
-
 let big_sqr =
   [ (0, 0); (1, 0); (2, 0); (0, 1); (1, 1); (2, 1); (0, 2); (1, 2); (2, 2) ]
-
-let hor_line = [ (0, 0); (1, 0); (2, 0); (3, 0) ]
-let vert_line = [ (0, 0); (0, 1); (0, 2); (0, 3) ]
+let hor_line4 = [ (0, 0); (1, 0); (2, 0); (3, 0) ]
+let vert_line4 = [ (0, 0); (0, 1); (0, 2); (0, 3) ]
 let big_l = [ (0, 0); (1, 0); (2, 0); (2, 1); (2, 2) ]
 let inv_big_l = [ (0, 0); (0, 1); (0, 2); (1, 2); (2, 2) ]
 let t_up = [ (0, 0); (0, 1); (0, 2); (-1, 1) ]
@@ -57,15 +57,17 @@ let create_random_block () =
     [
       one;
       sqr;
-      hor_two;
-      vert_two;
+      hor_line2;
+      vert_line2;
+      hor_line3;
+      vert_line3;
       small_l1;
       small_l2;
       small_l3;
       small_l4;
       big_sqr;
-      hor_line;
-      vert_line;
+      hor_line4;
+      vert_line4;
       big_l;
       inv_big_l;
       t_up;
