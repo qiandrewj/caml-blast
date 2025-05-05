@@ -70,6 +70,7 @@ let test_add_block_score =
 let test_add_line_clear_score =
   "test_add_line_clear_score" >:: fun _ ->
   let s = TestScoring.create () in
+  TestScoring.add_line_clear_score s 0;
   TestScoring.add_line_clear_score s 2;
   let expected = TestScoring.line_pts 1 2 in
   assert_equal expected (TestScoring.get_score s) ~printer:string_of_int;
