@@ -29,16 +29,16 @@ type t = {
 let create_random_level_block score =
   let roll = Random.float 1.0 in
   if score <= 1000 then
-    if roll < 0.7 then Block.create_easy_random_block ()
+    if roll < 0.6 then Block.create_easy_random_block ()
     else if roll < 0.9 then Block.create_medium_random_block ()
     else Block.create_random_block ()
   else if score <= 2000 then
-    if roll < 0.5 then Block.create_easy_random_block ()
+    if roll < 0.4 then Block.create_easy_random_block ()
     else if roll < 0.8 then Block.create_medium_random_block ()
     else Block.create_random_block ()
   else if score <= 5000 then
-    if roll < 0.3 then Block.create_easy_random_block ()
-    else if roll < 0.7 then Block.create_medium_random_block ()
+    if roll < 0.25 then Block.create_easy_random_block ()
+    else if roll < 0.5 then Block.create_medium_random_block ()
     else Block.create_random_block ()
   else Block.create_random_block ()
 
