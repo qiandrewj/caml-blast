@@ -20,6 +20,12 @@ let get_shape block = block.shape
 
 (*SHAPE DEFS*)
 let one = [ (0, 0) ]
+let hor_two = [ (0, 0); (1, 0) ]
+let vert_two = [ (0, 0); (0, 1) ]
+let small_l1 = [ (0, 0); (0, 1); (1, 1) ]
+let small_l2 = [ (0, 0); (1, 0); (1, 1) ]
+let small_l3 = [ (0, 0); (1, 0); (0, 1) ]
+let small_l4 = [ (0, 0); (0, 1); (-1, 1) ]
 let sqr = [ (0, 0); (1, 0); (0, 1); (1, 1) ]
 
 let big_sqr =
@@ -51,6 +57,12 @@ let create_random_block () =
     [
       one;
       sqr;
+      hor_two;
+      vert_two;
+      small_l1;
+      small_l2;
+      small_l3;
+      small_l4;
       big_sqr;
       hor_line;
       vert_line;

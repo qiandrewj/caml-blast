@@ -29,6 +29,24 @@ val get_shape : t -> shape
 val one : shape
 (**[one] is a 1x1 square. *)
 
+val hor_two : shape
+(**[hor_two] is a 2x1 line. *)
+
+val vert_two : shape
+(**[vert_two] is a 1x2 line. *)
+
+val small_l1 : shape
+(**[small_l1] is a 2x2 L shape. *)
+
+val small_l2 : shape
+(**[small_l2] is a 2x2 L shape. *)
+
+val small_l3 : shape
+(**[small_l3] is a 2x2 L shape. *)
+
+val small_l4 : shape
+(**[small_l4] is a 2x2 L shape. *)
+
 val sqr : shape
 (**[sqr] is a 2x2 square. *)
 
