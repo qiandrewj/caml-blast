@@ -20,6 +20,12 @@ val create_block : color -> shape -> t
 val create_random_block : unit -> t
 (**[create_random_block ()] is a block with random color and shape.*)
 
+val create_easy_random_block : unit -> t
+(**[create_easy_random_block ()] is an easy block with random color.*)
+
+val create_medium_random_block : unit -> t
+(**[create_medium_random_block ()] is a medium block with random color.*)
+
 val get_color : t -> color
 (**[get_color block] is the color of [block].*)
 
@@ -29,11 +35,17 @@ val get_shape : t -> shape
 val one : shape
 (**[one] is a 1x1 square. *)
 
-val hor_two : shape
-(**[hor_two] is a 2x1 line. *)
+val hor_line2 : shape
+(**[hor_line2] is a 2x1 line. *)
 
-val vert_two : shape
-(**[vert_two] is a 1x2 line. *)
+val vert_line2 : shape
+(**[vert_line2] is a 1x2 line. *)
+
+val hor_line3 : shape
+(**[hor_line3] is a 3x1 line. *)
+
+val vert_line3 : shape
+(**[vert_line3] is a 1x3 line. *)
 
 val small_l1 : shape
 (**[small_l1] is a 2x2 L shape. *)
@@ -53,11 +65,11 @@ val sqr : shape
 val big_sqr : shape
 (**[big_sqr] is a 3x3 square. *)
 
-val hor_line : shape
-(**[hor_line] is a horizontal line of length 4. *)
+val hor_line4 : shape
+(**[hor_line4] is a horizontal line of length 4. *)
 
-val vert_line : shape
-(**[vert_line] is a vertical line of length 4. *)
+val vert_line4 : shape
+(**[vert_line4] is a vertical line of length 4. *)
 
 val big_l : shape
 (**[big_l] is a 3x3 L shape. *)

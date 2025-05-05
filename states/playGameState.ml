@@ -22,21 +22,39 @@ type t = {
   clear_animation : clear_animation option;
 }
 
+(**[create_random_level_block score] is a randomly-colored block with a shape
+   that is probabilistically determined by the player's current score. Simpler
+   shapes are more common at the beginning, and afterwards blocks are completely
+   random.*)
+let create_random_level_block score =
+  let roll = Random.float 1.0 in
+  if score <= 1000 then
+    if roll < 0.7 then Block.create_easy_random_block ()
+    else if roll < 0.9 then Block.create_medium_random_block ()
+    else Block.create_random_block ()
+  else if score <= 2000 then
+    if roll < 0.5 then Block.create_easy_random_block ()
+    else if roll < 0.8 then Block.create_medium_random_block ()
+    else Block.create_random_block ()
+  else if score <= 5000 then
+    if roll < 0.3 then Block.create_easy_random_block ()
+    else if roll < 0.7 then Block.create_medium_random_block ()
+    else Block.create_random_block ()
+  else Block.create_random_block ()
+
 (**[init_block_queue ()] is an array of three random blocks.*)
-let init_block_queue () =
+let init_block_queue score =
   Array.of_list
     [
-      (* Some (Block.create_block R Block.hor_line); Some (Block.create_block R
-         Block.hor_line); Some (Block.create_block R Block.hor_line); *)
-      Some (Block.create_random_block ());
-      Some (Block.create_random_block ());
-      Some (Block.create_random_block ());
+      Some (create_random_level_block score);
+      Some (create_random_level_block score);
+      Some (create_random_level_block score);
     ]
 
 let init () =
   let board = Board.create_board 8 in
   let active_blocks = Hashtbl.create 32 in
-  let queued_blocks = init_block_queue () in
+  let queued_blocks = init_block_queue 0 in
   let score_state = S.create () in
   {
     board;
@@ -260,7 +278,8 @@ let handle_input state =
                 else None
               in
               let all_empty = Array.for_all (( = ) None) state.queued_blocks in
-              if all_empty then state.queued_blocks <- init_block_queue ();
+              let score = S.get_score state.score_state in
+              if all_empty then state.queued_blocks <- init_block_queue score;
               let game_over =
                 Board.no_moves state.board
                   (Array.to_list state.queued_blocks
