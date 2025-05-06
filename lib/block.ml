@@ -4,6 +4,8 @@ type color =
   | B
   | Y
   | P
+  | Pi
+  | O
 
 type shape = (int * int) list
 
@@ -18,13 +20,21 @@ let get_shape block = block.shape
 
 (*SHAPE DEFS*)
 let one = [ (0, 0) ]
+let hor_line2 = [ (0, 0); (1, 0) ]
+let vert_line2 = [ (0, 0); (0, 1) ]
+let hor_line3 = [ (0, 0); (1, 0); (2, 0) ]
+let vert_line3 = [ (0, 0); (0, 1); (0, 2) ]
+let small_l1 = [ (0, 0); (0, 1); (1, 1) ]
+let small_l2 = [ (0, 0); (1, 0); (1, 1) ]
+let small_l3 = [ (0, 0); (1, 0); (0, 1) ]
+let small_l4 = [ (0, 0); (0, 1); (-1, 1) ]
 let sqr = [ (0, 0); (1, 0); (0, 1); (1, 1) ]
 
 let big_sqr =
   [ (0, 0); (1, 0); (2, 0); (0, 1); (1, 1); (2, 1); (0, 2); (1, 2); (2, 2) ]
 
-let hor_line = [ (0, 0); (1, 0); (2, 0); (3, 0) ]
-let vert_line = [ (0, 0); (0, 1); (0, 2); (0, 3) ]
+let hor_line4 = [ (0, 0); (1, 0); (2, 0); (3, 0) ]
+let vert_line4 = [ (0, 0); (0, 1); (0, 2); (0, 3) ]
 let big_l = [ (0, 0); (1, 0); (2, 0); (2, 1); (2, 2) ]
 let inv_big_l = [ (0, 0); (0, 1); (0, 2); (1, 2); (2, 2) ]
 let t_up = [ (0, 0); (0, 1); (0, 2); (-1, 1) ]
@@ -44,14 +54,22 @@ let l_right = [ (0, 0); (1, 0); (0, 1); (0, 2) ]
 let () = Random.self_init ()
 
 let create_random_block () =
-  let colors = [ R; G; B; Y; P ] in
+  let colors = [ R; G; B; Y; P; Pi; O ] in
   let shapes =
     [
       one;
       sqr;
+      hor_line2;
+      vert_line2;
+      hor_line3;
+      vert_line3;
+      small_l1;
+      small_l2;
+      small_l3;
+      small_l4;
       big_sqr;
-      hor_line;
-      vert_line;
+      hor_line4;
+      vert_line4;
       big_l;
       inv_big_l;
       t_up;
@@ -65,6 +83,45 @@ let create_random_block () =
       l_down;
       l_left;
       l_right;
+    ]
+  in
+  let random_color = List.nth colors (Random.int (List.length colors)) in
+  let random_shape = List.nth shapes (Random.int (List.length shapes)) in
+  create_block random_color random_shape
+
+let create_easy_random_block () =
+  let colors = [ R; G; B; Y; P; Pi; O ] in
+  let shapes =
+    [
+      one;
+      sqr;
+      hor_line2;
+      vert_line2;
+      hor_line3;
+      vert_line3;
+      small_l1;
+      small_l2;
+      small_l3;
+      small_l4;
+    ]
+  in
+  let random_color = List.nth colors (Random.int (List.length colors)) in
+  let random_shape = List.nth shapes (Random.int (List.length shapes)) in
+  create_block random_color random_shape
+
+let create_medium_random_block () =
+  let colors = [ R; G; B; Y; P; Pi; O ] in
+  let shapes =
+    [
+      big_sqr;
+      hor_line4;
+      vert_line4;
+      big_l;
+      inv_big_l;
+      t_up;
+      t_down;
+      t_left;
+      t_right;
     ]
   in
   let random_color = List.nth colors (Random.int (List.length colors)) in

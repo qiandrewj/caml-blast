@@ -1,3 +1,5 @@
+open Blockblast
+
 type t
 (** [t] is the type of data another state can send to the play state. *)
 
