@@ -12,7 +12,8 @@ let create_board board_size =
   { grid = b; size = board_size }
 
 let size board = board.size
- let is_valid_pos board (r, c) =
+
+let is_valid_pos board (r, c) =
   r >= 0 && r < board.size && c >= 0 && c < board.size
 
 let get_cell board (r, c) =
@@ -27,7 +28,6 @@ let is_empty_cell board (r, c) =
   if is_valid_pos board (r, c) then
     match board.grid.(r).(c) with
     | Empty -> true
-    
     | _ -> false
   else raise (Invalid_argument "Out of bounds")
 

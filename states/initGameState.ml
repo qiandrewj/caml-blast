@@ -1,8 +1,6 @@
 open Raylib
 open Blockblast
 
-exception Invalid_game
-
 type t = {
   board : Board.t;
   active_blocks : (int * int, Block.t) Hashtbl.t;
@@ -13,21 +11,20 @@ type t = {
   game_over : bool;
 }
 
-let name = "play"
-let set_default = false
-let buffer : t option ref = ref None
-let set_buffer (t : t) = buffer := Some t
-
-let default_initgame =
+let init () =
+  let board = Board.create_board 8 in
+  let active_blocks = Hashtbl.create 16 in
+  let queued_blocks =
+    [
+      Block.create_random_block ();
+      Block.create_random_block ();
+      Block.create_random_block ();
+    ]
+  in
   {
-    board = Board.create_board 8;
-    active_blocks = Hashtbl.create 16;
-    queued_blocks =
-      [
-        Block.create_random_block ();
-        Block.create_random_block ();
-        Block.create_random_block ();
-      ];
+    board;
+    active_blocks;
+    queued_blocks;
     dragged_block = None;
     mouse_pos = (0, 0);
     score = 0;
@@ -69,6 +66,14 @@ let draw_board board =
       (200 + (c * 50))
       (80 + (8 * 50))
       (Color.create 0 0 0 255)
+  done;
+
+  for r = 0 to 8 do
+    draw_line 200
+      (80 + (r * 50))
+      (200 + (8 * 50))
+      (80 + (r * 50))
+      (Color.create 0 0 0 255)
   done
 
 let draw_block_with_shape x y block =
@@ -88,23 +93,26 @@ let draw_block_queue blocks =
       draw_block_with_shape x 550 block)
     blocks
 
-let draw_dragged_block dragged_block mouse_pos =
-  match dragged_block with
+let draw_dragged_block state =
+  match state.dragged_block with
   | Some (block, (offset_x, offset_y)) ->
-      let mx, my = mouse_pos in
-      let x = mx - offset_x in
-      let y = my - offset_y in
+      let x = fst state.mouse_pos - offset_x in
+      let y = snd state.mouse_pos - offset_y in
       draw_block_with_shape x y block
   | None -> ()
 
-let get_block_at_pos queued_blocks (x, y) =
+let get_block_at_pos state (x, y) =
   if y >= 550 && y < 550 + 30 then
     let index = (x - 200) / 150 in
-    if index >= 0 && index < List.length queued_blocks then
-      Some (List.nth queued_blocks index, (x - (200 + (index * 150)), y - 550))
+    if index >= 0 && index < List.length state.queued_blocks then
+      Some
+        ( List.nth state.queued_blocks index,
+          (x - (200 + (index * 150)), y - 550) )
     else None
   else None
 
+(* let board_pos_to_cell (x, y) = let col = (x - 200) / 50 in let row = (y - 80)
+   / 50 in (row, col) *)
 let can_place_block board block (r, c) =
   let shape = Block.get_shape block in
   List.for_all
@@ -113,17 +121,17 @@ let can_place_block board block (r, c) =
       Board.is_valid_pos board pos && Board.is_empty_cell board pos)
     shape
 
-let updated_game buffer =
-  if buffer.game_over then buffer
+let handle_input state =
+  if state.game_over then state
   else
     let mouse_pos = (get_mouse_x (), get_mouse_y ()) in
-    let state = { buffer with mouse_pos } in
+    let state = { state with mouse_pos } in
 
     Printf.printf "Mouse position: (%d, %d)\n" (fst mouse_pos) (snd mouse_pos);
     flush stdout;
 
     if is_mouse_button_pressed MouseButton.Left then (
-      match get_block_at_pos state.queued_blocks mouse_pos with
+      match get_block_at_pos state mouse_pos with
       | Some (block, offset) ->
           Printf.printf "Block selected for dragging.\n";
           flush stdout;
@@ -135,9 +143,8 @@ let updated_game buffer =
     else if is_mouse_button_released MouseButton.Left then (
       match state.dragged_block with
       | Some (block, _) ->
-          let mx, my = mouse_pos in
-          let board_x = mx - 200 in
-          let board_y = my - 80 in
+          let board_x = fst mouse_pos - 200 in
+          let board_y = snd mouse_pos - 80 in
           Printf.printf "Mouse released at board position: (%d, %d)\n" board_x
             board_y;
           flush stdout;
@@ -169,7 +176,9 @@ let updated_game buffer =
                   ]
                 else new_queued_blocks
               in
+
               let game_over = Board.no_moves state.board final_queued_blocks in
+
               {
                 state with
                 dragged_block = None;
@@ -192,50 +201,18 @@ let updated_game buffer =
           state)
     else state
 
-let init () =
-  match !buffer with
-  | Some data -> set_buffer data
-  | None -> set_buffer default_initgame
+let draw_ui state =
+  draw_text (Printf.sprintf "SCORE: %d" state.score) 350 40 25 Color.white
 
-let update () =
-  match !buffer with
-  | None -> raise Invalid_game
-  | Some data ->
-      let new_data = updated_game data in
-      set_buffer new_data;
-
-      if new_data.game_over then Some "over" else None
-
-let render () =
-  match !buffer with
-  | None -> ()
-  | Some state ->
-      begin_drawing ();
-      clear_background (Color.create 70 130 180 255);
-      draw_text (Printf.sprintf "SCORE: %d" state.score) 350 40 25 Color.white;
-      draw_board state.board;
-      draw_block_queue state.queued_blocks;
-      draw_dragged_block state.dragged_block state.mouse_pos;
-      end_drawing ()
-
-let reset () = buffer := None
-
-(* 
-
-   let init () = let board = Board.create_board 8 in let active_blocks =
-   Hashtbl.create 16 in let queued_blocks = [ Block.create_random_block ();
-   Block.create_random_block (); Block.create_random_block (); ] in { board;
-   active_blocks; queued_blocks; dragged_block = None; mouse_pos = (0, 0); score
-   = 0; game_over = false; }
-
-   for r = 0 to 8 do draw_line 200 (80 + (r * 50)) (200 + (8 * 50)) (80 + (r *
-   50)) (Color.create 0 0 0 255) done
-
-   let draw_ui state = draw_text (Printf.sprintf "SCORE: %d" state.score) 350 40
-   25 Color.white
-
-   let rec loop state = if window_should_close () then () else let state =
-   handle_input state in begin_drawing (); clear_background (Color.create 70 130
-   180 255); draw_ui state; draw_board state.board; draw_block_queue
-   state.queued_blocks; draw_dragged_block state; end_drawing (); if not
-   state.game_over then loop state *)
+let rec loop state =
+  if window_should_close () then ()
+  else
+    let state = handle_input state in
+    begin_drawing ();
+    clear_background (Color.create 70 130 180 255);
+    draw_ui state;
+    draw_board state.board;
+    draw_block_queue state.queued_blocks;
+    draw_dragged_block state;
+    end_drawing ();
+    if not state.game_over then loop state
