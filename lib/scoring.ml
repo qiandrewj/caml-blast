@@ -8,15 +8,39 @@ module type ScoringRules = sig
   val special_bonus_pts : int
 end
 
+module type ScoringType = sig
+  type t
+
+  val create : unit -> t
+  val block_pts : Block.t -> int
+  val line_pts : int -> int -> int
+  val score_block : t -> Block.t -> int
+  val score_lines : t -> int -> int
+  val get_score : t -> int
+  val get_combos : t -> int
+  val reset : t -> unit
+  val add_block_score : t -> Block.t -> unit
+  val add_line_clear_score : t -> int -> unit
+  val to_string : t -> string
+end
+
 module DefaultRules : ScoringRules = struct
   let pts_per_block = 10
   let pts_per_line = 100
   let combo_base_mult = 1.5
+  let special_bonus_threshold = 2
+  let special_bonus_pts = 300
+end
+
+module HardCoreRules : ScoringRules = struct
+  let pts_per_block = 0
+  let pts_per_line = 50
+  let combo_base_mult = 1.1
   let special_bonus_threshold = 3
   let special_bonus_pts = 300
 end
 
-module MakeScoring (R : ScoringRules) = struct
+module MakeScoring (R : ScoringRules) : ScoringType = struct
   type t = {
     mutable score : int;
     mutable combos : int;
