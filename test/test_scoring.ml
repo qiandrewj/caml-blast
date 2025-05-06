@@ -75,6 +75,13 @@ let test_add_line_clear_score =
   assert_equal expected (TestScoring.get_score s) ~printer:string_of_int;
   assert_equal 1 (TestScoring.get_combos s) ~printer:string_of_int
 
+let test_add_line_clear_score_zero =
+  "test_add_line_clear_score_zero" >:: fun _ ->
+  let s = TestScoring.create () in
+  TestScoring.add_line_clear_score s 0;
+  assert_equal 0 (TestScoring.get_combos s) ~printer:string_of_int;
+  assert_equal 0 (TestScoring.get_score s) ~printer:string_of_int
+
 let tests =
   "test_scoring"
   >::: [
@@ -87,6 +94,7 @@ let tests =
          test_to_string;
          test_add_block_score;
          test_add_line_clear_score;
+         test_add_line_clear_score_zero;
        ]
 
 let _ = run_test_tt_main tests
