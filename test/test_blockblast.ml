@@ -18,6 +18,55 @@ let test_random_blocks _ =
       assert_bool "Non-empty shape" (shape <> []))
     blocks
 
+let test_easy_blocks _ =
+  let blocks = List.init 20 (fun _ -> Block.create_easy_random_block ()) in
+  List.iter
+    (fun block ->
+      let color = Block.get_color block in
+      assert_bool "Valid color"
+        (List.mem color
+           [ Block.R; Block.G; Block.B; Block.Y; Block.P; Block.Pi; Block.O ]);
+      let shape = Block.get_shape block in
+      assert_bool "Easy shape"
+        (List.mem shape
+           [
+             Block.one;
+             Block.sqr;
+             Block.hor_line2;
+             Block.vert_line2;
+             Block.hor_line3;
+             Block.vert_line3;
+             Block.small_l1;
+             Block.small_l2;
+             Block.small_l3;
+             Block.small_l4;
+           ]))
+    blocks
+
+let test_medium_blocks _ =
+  let blocks = List.init 20 (fun _ -> Block.create_medium_random_block ()) in
+  List.iter
+    (fun block ->
+      let color = Block.get_color block in
+      assert_bool "Valid color"
+        (List.mem color
+           [ Block.R; Block.G; Block.B; Block.Y; Block.P; Block.Pi; Block.O ]);
+      let shape = Block.get_shape block in
+      assert_bool "Medium shape"
+        (List.mem shape
+           [
+             Block.big_sqr;
+             Block.hor_line4;
+             Block.vert_line4;
+             Block.big_l;
+             Block.inv_big_l;
+             Block.t_up;
+             Block.t_down;
+             Block.t_left;
+             Block.t_right;
+           ]))
+    blocks
+
 let test_create_board _ =
   let board = Board.create_board 8 in
   assert_equal 8 (Board.size board);
@@ -70,6 +119,7 @@ let test_block_placement _ =
 
 let test_clear _ =
   let board = Board.create_board 2 in
+  assert_equal ([], []) (Board.clear_full_lines board);
   let sqr_block = Block.create_block Block.R Block.sqr in
   Board.place_block board sqr_block (0, 0);
   assert_equal ([ 0; 1 ], [ 0; 1 ]) (Board.clear_full_lines board);
@@ -92,6 +142,8 @@ let tests =
   >::: [
          "test_block" >:: test_block;
          "test_random_block" >:: test_random_blocks;
+         "test_easy_random_block" >:: test_easy_blocks;
+         "test_medium_random_block" >:: test_medium_blocks;
          "test_create_board" >:: test_create_board;
          "test_size" >:: test_size;
          "test_is_valid_pos" >:: test_is_valid_pos;
