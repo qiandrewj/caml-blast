@@ -32,6 +32,9 @@ val get_color : t -> color
 val get_shape : t -> shape
 (**[get_shape block] is the shape of [block].*)
 
+val get_bounds : shape -> int * int * int * int
+val block_to_string : shape -> string
+
 val one : shape
 (**[one] is a 1x1 square. *)
 

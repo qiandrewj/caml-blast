@@ -2,4 +2,5 @@
  (name blockblast)
  (instrumentation
   (backend bisect_ppx))
- (libraries raylib batteries csv))
+ (libraries raylib batteries csv)
+  (modules_without_implementation state))
