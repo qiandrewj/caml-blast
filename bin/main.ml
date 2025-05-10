@@ -11,7 +11,7 @@ module SM3 = StateMachine.AddState (SM2) (OverState)
 module SM = StateMachine.AddState (SM3) (TitleState)
 
 let init () =
-  init_window Constants.width Constants.height "BLOCKBLAST";
+  init_window Constants.width Constants.height "CAMLBLAST";
   set_target_fps Constants.fps;
   SM.set_state "title";
   SM.init ()

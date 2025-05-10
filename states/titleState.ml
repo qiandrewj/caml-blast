@@ -71,7 +71,7 @@ let start_game () =
       else ()
 
 let draw_title_screen time =
-  let text = "BLOCKBLAST!" in
+  let text = "CAMLBLAST!" in
   let base_font_size = 70 in
   let pulse = sin (time *. 5.0) in
   let f_size = base_font_size + int_of_float (pulse *. 5.0) in
