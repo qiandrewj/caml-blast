@@ -137,6 +137,21 @@ let test_no_moves _ =
   Board.place_block board b2 (0, 0);
   assert_equal true (Board.no_moves board [ b1 ])
 
+let test_same_shape _ =
+  let same = Block.same_shape Block.sqr Block.sqr in
+  assert_bool "Square should equal square" same
+
+let test_find_shape_name _ =
+  let name = Block.find_shape_name Block.sqr in
+  let bad_name = Block.find_shape_name [] in
+  assert_equal "sqr" name ~printer:(fun s -> s);
+  assert_equal "unknown_shape" bad_name
+
+let test_block_to_string _ =
+  let b = Block.create_block Block.P Block.sqr in
+  let str = Block.block_to_string (Block.get_shape b) in
+  assert_equal "Block {shape = sqr}" str ~printer:(fun s -> s)
+
 let tests =
   "test suite"
   >::: [
@@ -151,6 +166,9 @@ let tests =
          "test_block_placement" >:: test_block_placement;
          "test_clear" >:: test_clear;
          "test_no_moves" >:: test_no_moves;
+         "test_same_shape" >:: test_same_shape;
+         "test_find_shape_name" >:: test_find_shape_name;
+         "test_block_to_string" >:: test_block_to_string;
        ]
 
 let _ = run_test_tt_main tests

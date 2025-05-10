@@ -1,0 +1,3 @@
+The module implementations `playEasyState.ml/.mli` and `playHardState.ml/.mli` contain much of the same code,
+and are mostly used to add slightly modified game experiences for the user. Our codebase's lines of code meets
+the target even excluding one of these modules, so if needed for testing LoC, either one can be excluded. Thank you!

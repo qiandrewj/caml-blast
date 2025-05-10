@@ -12,7 +12,8 @@ let create_board board_size =
   { grid = b; size = board_size }
 
 let size board = board.size
- let is_valid_pos board (r, c) =
+
+let is_valid_pos board (r, c) =
   r >= 0 && r < board.size && c >= 0 && c < board.size
 
 let get_cell board (r, c) =
@@ -27,7 +28,6 @@ let is_empty_cell board (r, c) =
   if is_valid_pos board (r, c) then
     match board.grid.(r).(c) with
     | Empty -> true
-    
     | _ -> false
   else raise (Invalid_argument "Out of bounds")
 
@@ -40,12 +40,12 @@ let place_block board block (r, c) =
         let pos = (r + dr, c + dc) in
         is_valid_pos board pos && is_empty_cell board pos)
       shape
-  then (
+  then
     List.iter
       (fun (dr, dc) ->
         let pos = (r + dr, c + dc) in
         set_cell board pos (Block color))
-      shape)
+      shape
   else failwith "Block cannot be placed there"
 
 let clear_full_lines board =

@@ -128,15 +128,6 @@ let create_medium_random_block () =
   let random_shape = List.nth shapes (Random.int (List.length shapes)) in
   create_block random_color random_shape
 
-let get_bounds shape =
-  let r = List.map fst shape in
-  let c = List.map snd shape in
-  let min_r = List.fold_left min max_int r in
-  let max_r = List.fold_left max min_int r in
-  let min_c = List.fold_left min max_int c in
-  let max_c = List.fold_left max min_int c in
-  (min_r, max_r, min_c, max_c)
-
 let named_shapes =
   [
     ("one", one);
@@ -176,4 +167,4 @@ let find_shape_name shape =
 
 let block_to_string shape =
   let shape_name = find_shape_name shape in
-  Printf.sprintf "Block {shape = %s }" shape_name
+  Printf.sprintf "Block {shape = %s}" shape_name
