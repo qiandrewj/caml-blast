@@ -32,8 +32,14 @@ val get_color : t -> color
 val get_shape : t -> shape
 (**[get_shape block] is the shape of [block].*)
 
-val get_bounds : shape -> int * int * int * int
 val block_to_string : shape -> string
+(**[block_to_string shape] is the string representation of [shape]. *)
+
+val same_shape : shape -> shape -> bool
+(**[same_shape s1 s2] is true iff [s1] and [s2] have the same shape. *)
+
+val find_shape_name : shape -> string
+(**[find_shape_name shape] is the name of [shape]. *)
 
 val one : shape
 (**[one] is a 1x1 square. *)
