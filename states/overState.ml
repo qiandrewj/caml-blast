@@ -80,9 +80,6 @@ let draw_end_screen time =
   let sub_t_width = measure_text sub_text sub_f_size in
   let sub_t_x = (Constants.width - sub_t_width) / 2 in
   let sub_t_y = t_y + f_size + 20 in
-  (* draw_rectangle_rounded (Rectangle.create (float_of_int (sub_t_x - 15))
-     (float_of_int (sub_t_y - 10)) (float_of_int (sub_t_width + 30))
-     (float_of_int (sub_f_size + 20))) 0.2 10 Color.gray; *)
   draw_text sub_text sub_t_x sub_t_y sub_f_size Color.lightgray;
 
   let is_hovered =

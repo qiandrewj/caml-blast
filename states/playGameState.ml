@@ -22,6 +22,13 @@ type clear_animation = {
   particles : blast_particle list;
 }
 
+type drag_info = {
+  block: Block.t;
+  index: int;
+  offset_x: int;
+  offset_y: int;
+}
+
 module S = Scoring.MakeScoring (Scoring.DefaultRules)
 
 type t = S.t
@@ -90,7 +97,7 @@ let init_block_queue score =
     ]
 
 let queued_blocks = ref (init_block_queue 0)
-let dragged_block = ref None
+let dragged_block : drag_info option ref = ref None
 let mouse_pos = ref (0, 0)
 let scorer = ref (S.create ())
 let game_over = ref false
@@ -176,9 +183,9 @@ let draw_block_queue blocks =
    block. *)
 let draw_dragged_block dragged_block mouse_pos =
   match dragged_block with
-  | Some (block, index) ->
+  | Some drag ->
       let mx, my = mouse_pos in
-      draw_block_with_shape (mx - 15) (my - 15) block
+      draw_block_with_shape (mx - drag.offset_x) (my - drag.offset_y) drag.block
       | None -> ()
 
 let create_blast_particles rs cs =
@@ -311,22 +318,32 @@ let update_game () =
       match get_block_at_pos !queued_blocks !mouse_pos with
       | Some block ->
           let index = (fst !mouse_pos - bx) / 150 in
+          let base_x = bx + (index * 150) in
+          let base_y = queue_y in
+          let mx, my = !mouse_pos in
+          let offset_x = mx - base_x in 
+          let offset_y = my - base_y in
           !queued_blocks.(index) <- None;
-         dragged_block := Some (block, index)
+          dragged_block := Some {
+            block;
+            index;
+            offset_x;
+            offset_y
+          }
       | None -> ()
     else if is_mouse_button_released MouseButton.Left then
       match !dragged_block with
-      | Some (block, orig_index) ->
+      | Some drag ->
           let mx, my = !mouse_pos in
-          let r = (my - by) / 50 in
-          let c = (mx - bx) / 50 in
+          let r = (my - drag.offset_y - by) / 50 in
+          let c = (mx - drag.offset_x - bx) / 50 in
           if r >= 0 && c >= 0 then
-            if can_place_block !board block (r, c) then (
-              Board.place_block !board block (r, c);
+            if can_place_block !board drag.block (r, c) then (
+              Board.place_block !board drag.block (r, c);
               let cleared_rows, cleared_cols =
                 Board.clear_full_lines !board
               in
-              S.add_block_score !scorer block;
+              S.add_block_score !scorer drag.block;
               let cleared_count =
                 List.length cleared_rows + List.length cleared_cols
               in
@@ -357,14 +374,14 @@ let update_game () =
               clear_animation := new_animation)
             else (
               if
-                orig_index >= 0
-                && orig_index < Array.length !queued_blocks
-              then !queued_blocks.(orig_index) <- Some block;
+                drag.index >= 0
+                && drag.index < Array.length !queued_blocks
+              then !queued_blocks.(drag.index) <- Some drag.block;
               dragged_block := None)
           else (
             if
-              orig_index >= 0 && orig_index < Array.length !queued_blocks
-            then !queued_blocks.(orig_index) <- Some block;
+              drag.index >= 0 && drag.index < Array.length !queued_blocks
+            then !queued_blocks.(drag.index) <- Some drag.block;
             dragged_block := None)
       | None -> ()
     else ()
