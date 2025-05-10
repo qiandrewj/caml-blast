@@ -175,6 +175,5 @@ let find_shape_name shape =
   | None -> "unknown_shape"
 
 let block_to_string shape =
-  (* let shape = get_shape block in *)
   let shape_name = find_shape_name shape in
   Printf.sprintf "Block {shape = %s }" shape_name

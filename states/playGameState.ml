@@ -270,8 +270,7 @@ let get_block_at_pos queued_blocks (x, y) =
               shape
           in
           match cell_opt with
-          | Some (r, c) -> Printf.printf "Block selected: (x, y) = (%d, %d) (r, c) = (%d, %d)\n" x y (x + r * 30) (base_y + c * 30);
-           flush stdout; Some block
+          | Some (r, c) ->  Some block
           | None -> None)
       | None -> None
     else None
