@@ -1,9 +1,14 @@
 exception Invalid_transition of string
 exception Empty_state_machine
 
+(**[array_to_string f arr] is the array [arr] in a string format with the
+   formatting function [f] applied.*)
 let array_to_string f arr =
   "[|" ^ Array.fold_left (fun acc x -> acc ^ f x) "" arr ^ "|]"
 
+(**[raise_invalid_state state states] is the raised exception when an attempt is
+   made to transition to a state [state] that is not in the array of valid state
+   names [states].*)
 let raise_invalid_state state states =
   let exn =
     match !state with
