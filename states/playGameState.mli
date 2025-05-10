@@ -1,22 +1,21 @@
 open Blockblast
 
-type clear_animation = {
-  rows : int list;
-  cols : int list;
-  progress : float;
-  center_pos : int * int;
-}
-(**The type representing a clearing animation for the board.*)
-
 type t
-(**The abstract type representing the playing game state.*)
-(* type t = { board : Board.t; active_blocks : (int * int, Block.t) Hashtbl.t;
-   mutable queued_blocks : Block.t option array; dragged_block : (Block.t * (int
-   * int)) option; mouse_pos : int * int; score_state : Scoring.t; game_over :
-   bool; clear_animation : clear_animation option; } *)
+(** [t] is the type of data another state can send to the play state. *)
 
-val init : unit -> t
-(**[init ()] creates an initial game state.*)
+val name : string
+(** [name] is ["play"]. *)
+val set_default : bool
+(** [set_default] is [flase] because it is not the state the game starts. *)
+val set_buffer : t -> unit
+(** [set_buffer data] sets the buffer of the play state. *)
+val init : unit -> unit
+(** [init ()] initializes the play state. *)
+val update : unit -> string option
+(** [update ()] checks for keyboard input. This state may transition into the
+    [pause] state. *)
+val render : unit -> unit
+(* val show : unit -> unit * [show ()] draws the game board, current score,
+   background, and active blocks. *)
 
-val loop : t -> unit
-(**[loop state] updates [state] for a time step.*)
+val reset : unit -> unit

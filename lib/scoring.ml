@@ -88,5 +88,5 @@ module MakeScoring (R : ScoringRules) : ScoringType = struct
     if lines_cleared > 0 then s.combos <- s.combos + 1 else s.combos <- 0;
     s.score <- s.score + line_pts s.combos lines_cleared
 
-  let to_string t = Printf.sprintf "Score %d" t.score
+  let to_string t = Printf.sprintf "Score: %d" t.score
 end

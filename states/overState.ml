@@ -11,20 +11,22 @@ type falling_block = {
   speed : float;
 }
 
-let name = "title"
-let set_default = true
-let game_started = ref false
-let buffer = ref None
+let name = "over"
+let set_default = false
+let game_restarted = ref false
+let buffer : t option ref = ref (Some 0)
 let set_buffer (t : t) = buffer := Some t
 let button_width = 200.
 let button_height = 50.
-let start_button_x = (float_of_int Constants.width /. 2.) -. (button_width /. 2.)
 
-let start_button_y =
+let restart_button_x =
+  (float_of_int Constants.width /. 2.) -. (button_width /. 2.)
+
+let restart_button_y =
   (float_of_int Constants.height /. 2.) -. (button_height /. 2.) +. 50.
 
-let start_button_rect =
-  Rectangle.create start_button_x start_button_y button_width button_height
+let restart_button_rect =
+  Rectangle.create restart_button_x restart_button_y button_width button_height
 
 let falling_block = ref []
 let max_falling_blocks = 50
@@ -47,6 +49,7 @@ let create_falling_block () =
 
 let init () =
   Random.self_init ();
+
   for _ = 1 to max_falling_blocks / 2 do
     let block = create_falling_block () in
     Rectangle.set_y block.rect (float_of_int (Random.int Constants.height));
@@ -54,14 +57,12 @@ let init () =
   done;
   block_spawn_timer := 0.0
 
-let start_game () =
-  if not !game_started then
-    if button start_button_rect "PLAY" || is_key_pressed Key.Enter then
-      game_started := true
-    else ()
+let restart_game () =
+  if not !game_restarted then
+    if button restart_button_rect "RESTART" then game_restarted := true else ()
 
-let draw_title_screen time =
-  let text = "BLOCKBLAST!" in
+let draw_end_screen time =
+  let text = "GAME OVER" in
   let base_font_size = 70 in
   let pulse = sin (time *. 5.0) in
   let f_size = base_font_size + int_of_float (pulse *. 5.0) in
@@ -70,30 +71,38 @@ let draw_title_screen time =
   let t_y = Constants.height / 4 in
   draw_text text t_x t_y f_size Color.gold;
   draw_text text (t_x + 3) (t_y + 3) f_size (Color.create 0 0 0 100);
-  let sub_text = "Click PLAY to start" in
-  let sub_f_size = 20 in
+  let sub_text =
+    match !buffer with
+    | Some s -> Printf.sprintf "Total score: %d" s
+    | None -> raise Not_found
+  in
+  let sub_f_size = 40 in
   let sub_t_width = measure_text sub_text sub_f_size in
   let sub_t_x = (Constants.width - sub_t_width) / 2 in
   let sub_t_y = t_y + f_size + 20 in
+  (* draw_rectangle_rounded (Rectangle.create (float_of_int (sub_t_x - 15))
+     (float_of_int (sub_t_y - 10)) (float_of_int (sub_t_width + 30))
+     (float_of_int (sub_f_size + 20))) 0.2 10 Color.gray; *)
   draw_text sub_text sub_t_x sub_t_y sub_f_size Color.lightgray;
+
   let is_hovered =
-    check_collision_point_rec (get_mouse_position ()) start_button_rect
+    check_collision_point_rec (get_mouse_position ()) restart_button_rect
   in
   let button_color = if is_hovered then Color.gold else Color.gray in
-  draw_rectangle_rounded start_button_rect 0.2 10 button_color;
-  let play_text = "PLAY" in
+  draw_rectangle_rounded restart_button_rect 0.2 10 button_color;
+  let play_text = "RESTART" in
   let text_width = measure_text play_text 30 in
   let text_height = 30 in
   let text_x =
-    start_button_x +. (button_width /. 2.) -. (float_of_int text_width /. 2.)
+    restart_button_x +. (button_width /. 2.) -. (float_of_int text_width /. 2.)
   in
   let text_y =
-    start_button_y +. (button_height /. 2.) -. (float_of_int text_height /. 2.)
+    restart_button_y +. (button_height /. 2.) -. (float_of_int text_height /. 2.)
   in
   draw_text play_text (int_of_float text_x) (int_of_float text_y) 30 Color.black;
   end_drawing ()
 
-let update () = if !game_started then Some "play" else None
+let update () = if !game_restarted then Some "reset" else None
 
 let render () =
   let delta_time = get_frame_time () in
@@ -123,14 +132,14 @@ let render () =
   List.iter
     (fun block -> draw_rectangle_rec block.rect block.color)
     !falling_block;
-  if !game_started then clear_background Color.raywhite
+  if !game_restarted then clear_background Color.raywhite
   else (
-    draw_title_screen time;
-    start_game ())
+    draw_end_screen time;
+    restart_game ())
 
 let reset () =
   buffer := None;
-  game_started := false;
+  game_restarted := false;
   falling_block := [];
 
   for _ = 1 to max_falling_blocks / 2 do

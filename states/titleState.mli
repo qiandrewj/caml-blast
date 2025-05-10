@@ -13,13 +13,12 @@ val set_buffer : t -> unit
 val init : unit -> unit
 (** [init ()] initializes the title state. *)
 
-val update : unit -> unit
+val update : unit -> string option
 (** [update ()] checks for keyboard input. This state may transition into the
     [initGame] state. *)
 
-(* val show : unit -> unit * [show ()] draws the title screen. *)
-
-val run : unit -> unit
+val render : unit -> unit
+(** [render ()] draws the output of the title screen. *)
 
 val reset : unit -> unit
 (** [show ()] resets the state to its inital state. *)
