@@ -57,7 +57,7 @@ let test_to_string =
   let s = TestScoring.create () in
   ignore (TestScoring.score_lines s 1);
   let str = TestScoring.to_string s in
-  assert_equal "Score 250" str ~printer:(fun s -> s)
+  assert_equal "Score: 250" str ~printer:(fun s -> s)
 
 let test_add_block_score =
   "test_add_block_score" >:: fun _ ->

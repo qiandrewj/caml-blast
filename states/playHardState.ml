@@ -29,11 +29,11 @@ type drag_info = {
   offset_y: int;
 }
 
-module S = Scoring.MakeScoring (Scoring.DefaultRules)
+module S = Scoring.MakeScoring (Scoring.HardCoreRules)
 
 type t = S.t
 
-let name = "play"
+let name = "play_hard"
 let set_default = false
 let buffer : t option ref = ref None
 let set_buffer (scorer: t) = buffer := Some scorer
