@@ -64,10 +64,10 @@ let start_game () =
     if not !game_started then
       if button easy_button_rect "EASY" then (
         game_started := true;
-        game_mode := "easy")
+        game_mode := "play_easy")
       else if button hardcore_button_rect "HARDCORE" then (
         game_started := true;
-        game_mode := "hardcore")
+        game_mode := "play_hard")
       else ()
 
 let draw_title_screen time =

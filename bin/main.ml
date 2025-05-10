@@ -4,10 +4,11 @@ open Raylib
 open Raygui
 
 module SM1 =
-  StateMachine.AddState (StateMachine.EmptyStateMachine ()) (PlayGameState)
+  StateMachine.AddState (StateMachine.EmptyStateMachine ()) (PlayEasyState)
 
-module SM2 = StateMachine.AddState (SM1) (OverState)
-module SM = StateMachine.AddState (SM2) (TitleState)
+module SM2 = StateMachine.AddState (SM1) (PlayHardState)
+module SM3 = StateMachine.AddState (SM2) (OverState)
+module SM = StateMachine.AddState (SM3) (TitleState)
 
 let init () =
   init_window Constants.width Constants.height "BLOCKBLAST";
