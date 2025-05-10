@@ -98,7 +98,7 @@ let clear_animation = ref None
 
 (**[draw_cell x y cell] draws the board [cell] at [x, y].*)
 let draw_cell x y = function
-  | Board.Empty -> draw_rectangle x y 50 50 (Color.create 245 245 245 255)
+  | Board.Empty -> draw_rectangle x y 50 50 (Color.create 245 245 245 180)
   | Board.Block color -> draw_rectangle x y 50 50 (color_to_raylib color)
 
 let board_size = 8 * 50
@@ -112,7 +112,7 @@ let queue_y = by + board_size + 20
 
 (**[draw_board board] draws the game board.*)
 let draw_board board =
-  draw_rectangle bx by board_size board_size (Color.create 245 245 245 255);
+  draw_rectangle bx by board_size board_size (Color.create 245 245 245 100);
 
   for r = 0 to 7 do
     for c = 0 to 7 do
@@ -128,7 +128,7 @@ let draw_board board =
       by
       (bx + (c * 50))
       (by + (8 * 50))
-      (Color.create 0 0 0 255)
+      (Color.create 0 0 0 100)
   done;
 
   for r = 0 to 8 do
@@ -136,7 +136,7 @@ let draw_board board =
       (by + (r * 50))
       (bx + (8 * 50))
       (by + (r * 50))
-      (Color.create 0 0 0 255)
+      (Color.create 0 0 0 100)
   done
 
 (**[draw_block_with_shape x y block] draws [block] at [x, y].*)
@@ -148,10 +148,18 @@ let draw_block_with_shape x y block =
     (fun (dr, dc) ->
       let rect_x = x + (dc * 30) in
       let rect_y = y + (dr * 30) in
-      draw_rectangle rect_x rect_y 28 28 color;
-      draw_rectangle_lines rect_x rect_y 28 28 Color.white;)
-    shape
+      let glow_color = Color.create 255 255 255 50 in
 
+      for i = 1 to 3 do 
+        let size = 28 + (i * 2) in 
+        let offset = i in 
+        draw_rectangle (rect_x - offset) (rect_y - offset) size size glow_color
+      done; 
+
+      draw_rectangle rect_x rect_y 30 30 (Color.create 0 0 0 80);
+      draw_rectangle rect_x rect_y 28 28 color;
+      draw_rectangle_lines rect_x rect_y 28 28 Color.white)
+    shape
 
 (**[draw_block_queue blocks] draws the upcoming queue [blocks].*)
 let draw_block_queue blocks =
@@ -173,47 +181,46 @@ let draw_dragged_block dragged_block mouse_pos =
       draw_block_with_shape (mx - 15) (my - 15) block
       | None -> ()
 
-      let create_blast_particles rs cs =
-        let speed = 2.0 +. Random.float 3.0 in
-        let make_particle x y dx dy dist =
-          {
-            x = float_of_int x;
-            y = float_of_int y;
-            dx = dx *. speed;
-            dy = dy *. speed;
-            size = 4.0 +. Random.float 4.0;
-            color = random_color ();
-            spawn_time = dist *. 0.03;
-          }
-        in
-        let row_particles = 
-          List.flatten (
-            List.map (fun r ->
-              let y = by + r * 50 + 25 in
-              List.init 8 (fun c ->
-                let x = bx + c * 50 + 25 in
-                let center_dist = float_of_int (abs (c - 4)) in 
-                [ make_particle x y (-1.0) 0.0 center_dist;
-                  make_particle x y 1.0 0.0 center_dist]
-              ) |> List.flatten
-            ) rs
-          )
-        in
-      
-        let col_particles =
-          List.flatten (
-            List.map (fun c ->
-              let x = bx + c * 50 + 25 in
-              List.init 8 (fun r ->
-                let y = by + r * 50 + 25 in
-                let center_dist = float_of_int (abs (r - 4)) in
-                [ make_particle x y 0.0 (-1.0) center_dist;
-                  make_particle x y 0.0 1.0 center_dist]
-              ) |> List.flatten
-            ) cs
-          ) 
-        in
-        row_particles @ col_particles
+let create_blast_particles rs cs =
+  let speed = 2.0 +. Random.float 3.0 in
+  let make_particle x y dx dy dist =
+    {
+      x = float_of_int x;
+      y = float_of_int y;
+      dx = dx *. speed;
+      dy = dy *. speed;
+      size = 4.0 +. Random.float 4.0;
+      color = random_color ();
+      spawn_time = dist *. 0.03;
+    }
+  in
+  let row_particles = 
+    List.flatten (
+      List.map (fun r ->
+        let y = by + r * 50 + 25 in
+        List.init 8 (fun c ->
+          let x = bx + c * 50 + 25 in
+          let center_dist = float_of_int (abs (c - 4)) in 
+          [ make_particle x y (-1.0) 0.0 center_dist;
+            make_particle x y 1.0 0.0 center_dist]
+        ) |> List.flatten
+      ) rs
+    )
+  in
+  let col_particles =
+    List.flatten (
+      List.map (fun c ->
+        let x = bx + c * 50 + 25 in
+        List.init 8 (fun r ->
+          let y = by + r * 50 + 25 in
+          let center_dist = float_of_int (abs (r - 4)) in
+          [ make_particle x y 0.0 (-1.0) center_dist;
+            make_particle x y 0.0 1.0 center_dist]
+        ) |> List.flatten
+      ) cs
+    ) 
+  in
+  row_particles @ col_particles
         
 
 let draw_clear_animation () =
@@ -373,12 +380,22 @@ let update () =
 
 let render () =
   begin_drawing ();
-  clear_background (Color.create 70 130 180 255);
+  let top_color = Color.create 60 90 130 255 in
+  let bottom_color = Color.create 30 60 90 255 in
+  draw_rectangle_gradient_v 0 0 Constants.width Constants.height top_color
+    bottom_color;
   let score_text = S.to_string !scorer in
   let text_width = measure_text score_text 25 in
+  let text_height = 25 in
   let score_x = (Constants.width - text_width) / 2 in
-  draw_text score_text score_x (by - 50) 25 Color.white;
-
+  let score_y = by - 50 in
+  draw_rectangle_rounded (Rectangle.create 
+  (float_of_int (score_x - 15)) 
+  (float_of_int (score_y - 10)) 
+  (float_of_int (text_width + 30)) 
+  (float_of_int (text_height + 20))) 0.2 10 Color.gray;
+  draw_text score_text score_x score_y 25 Color.white;
+ 
   draw_board !board;
   draw_block_queue !queued_blocks;
   draw_dragged_block !dragged_block !mouse_pos;

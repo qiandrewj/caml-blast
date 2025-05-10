@@ -76,12 +76,20 @@ let draw_end_screen time =
     | Some s -> Printf.sprintf "Total score: %d" s
     | None -> raise Not_found
   in
-  let sub_f_size = 20 in
+  let sub_f_size = 40 in
   let sub_t_width = measure_text sub_text sub_f_size in
   let sub_t_x = (Constants.width - sub_t_width) / 2 in
   let sub_t_y = t_y + f_size + 20 in
+  (* draw_rectangle_rounded (Rectangle.create (float_of_int (sub_t_x - 15))
+     (float_of_int (sub_t_y - 10)) (float_of_int (sub_t_width + 30))
+     (float_of_int (sub_f_size + 20))) 0.2 10 Color.gray; *)
   draw_text sub_text sub_t_x sub_t_y sub_f_size Color.lightgray;
-  draw_rectangle_rec restart_button_rect Color.lightgray;
+
+  let is_hovered =
+    check_collision_point_rec (get_mouse_position ()) restart_button_rect
+  in
+  let button_color = if is_hovered then Color.gold else Color.gray in
+  draw_rectangle_rounded restart_button_rect 0.2 10 button_color;
   let play_text = "RESTART" in
   let text_width = measure_text play_text 30 in
   let text_height = 30 in
@@ -116,8 +124,8 @@ let render () =
         if new_y > float_of_int Constants.height then None else Some block)
       !falling_block;
 
-  let top_color = Color.create 40 60 80 255 in
-  let bottom_color = Color.create 80 100 120 255 in
+  let top_color = Color.create 60 90 130 255 in
+  let bottom_color = Color.create 30 60 90 255 in
   draw_rectangle_gradient_v 0 0 Constants.width Constants.height top_color
     bottom_color;
 

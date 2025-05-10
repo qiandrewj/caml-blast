@@ -56,7 +56,9 @@ let init () =
 
 let start_game () =
   if not !game_started then
-    if button start_button_rect "PLAY" then game_started := true else ()
+    if button start_button_rect "PLAY" || is_key_pressed Key.Enter then
+      game_started := true
+    else ()
 
 let draw_title_screen time =
   let text = "BLOCKBLAST!" in
@@ -74,7 +76,11 @@ let draw_title_screen time =
   let sub_t_x = (Constants.width - sub_t_width) / 2 in
   let sub_t_y = t_y + f_size + 20 in
   draw_text sub_text sub_t_x sub_t_y sub_f_size Color.lightgray;
-  draw_rectangle_rec start_button_rect Color.lightgray;
+  let is_hovered =
+    check_collision_point_rec (get_mouse_position ()) start_button_rect
+  in
+  let button_color = if is_hovered then Color.gold else Color.gray in
+  draw_rectangle_rounded start_button_rect 0.2 10 button_color;
   let play_text = "PLAY" in
   let text_width = measure_text play_text 30 in
   let text_height = 30 in
@@ -109,8 +115,8 @@ let render () =
         if new_y > float_of_int Constants.height then None else Some block)
       !falling_block;
 
-  let top_color = Color.create 40 60 80 255 in
-  let bottom_color = Color.create 80 100 120 255 in
+  let top_color = Color.create 60 90 130 255 in
+  let bottom_color = Color.create 30 60 90 255 in
   draw_rectangle_gradient_v 0 0 Constants.width Constants.height top_color
     bottom_color;
 
